@@ -12,8 +12,8 @@ namespace daytwo
         {
             List<string> inputPasswords = File.ReadAllLines(Path.Combine(Environment.CurrentDirectory, "input", "passwords.txt")).ToList();
 
-            int totalCorrectPasswords = 0;
-            int newTotalCorrectPasswords = 0;
+            int problemOnePasswords = 0;
+            int problemTwoPasswords = 0;
 
             foreach (var input in inputPasswords)
             {
@@ -31,21 +31,19 @@ namespace daytwo
 
                 if (countRequired >= min && countRequired <= max)
                 {
-                    totalCorrectPasswords++;
+                    problemOnePasswords++;
                 }
 
                 char[] passwordAsCharArray = password.ToCharArray();
-                if ((passwordAsCharArray[min-1] == letter && passwordAsCharArray[max-1] != letter) ||
-                    (passwordAsCharArray[min-1] != letter && passwordAsCharArray[max-1] == letter))
+                if (passwordAsCharArray[min-1] == letter ^ passwordAsCharArray[max-1] == letter)
                 {
                     Console.WriteLine(input);
-                    newTotalCorrectPasswords++;
+                    problemTwoPasswords++;
                 }
             }
 
-            Console.WriteLine($"{totalCorrectPasswords}/{inputPasswords.Count}");
-            Console.WriteLine($"{newTotalCorrectPasswords}/{inputPasswords.Count}");
+            Console.WriteLine($"{problemOnePasswords}/{inputPasswords.Count}");
+            Console.WriteLine($"{problemTwoPasswords}/{inputPasswords.Count}");
         }
-
     }
 }
