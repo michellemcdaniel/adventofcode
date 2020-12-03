@@ -4,13 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace dayone
+namespace adventofcode
 {
-    class Program
+    class Day01
     {
-        static void Main(string[] args)
+        public static void Execute()
         {
-            List<string> inputNumbers = File.ReadAllLines(Path.Combine(Environment.CurrentDirectory, "input", "numbers.txt")).ToList();
+            List<string> inputNumbers = File.ReadAllLines(Path.Combine(Environment.CurrentDirectory, "input", "day01.txt")).ToList();
             List<int> inputNumbersAsInts = inputNumbers.Select(i => Int32.Parse(i)).ToList();
 
             Dictionary<int, int> inputNumbersDict = new Dictionary<int, int>();

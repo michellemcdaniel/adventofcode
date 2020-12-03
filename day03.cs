@@ -4,13 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace daythree
+namespace adventofcode
 {
-    class Program
+    class Day03
     {
-        static void Main(string[] args)
+        public static void Execute()
         {
-            List<string> inputMap = File.ReadAllLines(Path.Combine(Environment.CurrentDirectory, "input", "input.txt")).ToList();
+            List<string> inputMap = File.ReadAllLines(Path.Combine(Environment.CurrentDirectory, "input", "day03.txt")).ToList();
             List<Slope> slopes = new List<Slope>()
             {
                 new Slope(1,1),

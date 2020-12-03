@@ -4,13 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace daytwo
+namespace adventofcode
 {
-    class Program
+    class Day02
     {
-        static void Main(string[] args)
+        public static void Execute()
         {
-            List<string> inputPasswords = File.ReadAllLines(Path.Combine(Environment.CurrentDirectory, "input", "passwords.txt")).ToList();
+            List<string> inputPasswords = File.ReadAllLines(Path.Combine(Environment.CurrentDirectory, "input", "day02.txt")).ToList();
 
             int problemOnePasswords = 0;
             int problemTwoPasswords = 0;
@@ -37,7 +37,6 @@ namespace daytwo
                 char[] passwordAsCharArray = password.ToCharArray();
                 if (passwordAsCharArray[min-1] == letter ^ passwordAsCharArray[max-1] == letter)
                 {
-                    Console.WriteLine(input);
                     problemTwoPasswords++;
                 }
             }
