@@ -20,44 +20,43 @@ namespace adventofcode
                 new Slope(1,2)
             };
 
-            int totalTrees = 1;
+            int currentRow = 0;
 
-            foreach (Slope slope in slopes)
+
+            foreach(string row in inputMap)
             {
-                int index = 0;
-                int currentRow = 0;
-
-                int trees = 0;
-                int free = 0;
-
-                foreach(string row in inputMap)
+                if (currentRow == 0)
                 {
-                    // Handle slopes that are not down 1
-                    if (currentRow != slope.Down)
-                    {
-                        currentRow++;
-                        continue;
-                    }
-
-                    currentRow = 1;
-
-                    index = (index+slope.Right)%row.Length;
-                    char[] rowAsCharArray = row.ToCharArray();
-                    if (rowAsCharArray[index] == '#')
-                    {
-                        trees++;
-                    }
-                    else
-                    {
-                        free++;
-                    }
+                    currentRow++;
+                    continue;
                 }
 
-                Console.WriteLine($"For Slope {slope.Right},{slope.Down} -- Trees: {trees}; Free: {free}");
-                slope.Trees = trees;
-                totalTrees = totalTrees*slope.Trees;
+                char[] rowAsCharArray = row.ToCharArray();
+
+                foreach (Slope slope in slopes)
+                {
+                    if (currentRow % slope.Down == 0)
+                    {
+                        slope.CurrentIndex = (slope.CurrentIndex+slope.Right)%row.Length;
+                        
+                        if (rowAsCharArray[slope.CurrentIndex] == '#')
+                        {
+                            slope.Trees++;
+                        }
+                    }
+                }
+                currentRow++;
             }
-            Console.WriteLine($"All multiplied: {totalTrees}");
+
+            long totalTrees = 1;
+
+            foreach(Slope slope in slopes)
+            {
+                Console.WriteLine($"Trees: {slope.Trees}");
+                totalTrees = totalTrees * slope.Trees;
+            }
+
+            Console.WriteLine($"Total trees: {totalTrees}");
         }
     }
 
@@ -67,6 +66,7 @@ namespace adventofcode
         public int Down { get; }
         public int Trees { get; set; }
 
+        public int CurrentIndex { get; set; }
         public Slope(int right, int down)
         {
             Right = right;
