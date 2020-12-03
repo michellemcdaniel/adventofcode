@@ -65,8 +65,8 @@ namespace adventofcode
         public int Right { get; }
         public int Down { get; }
         public int Trees { get; set; }
-
         public int CurrentIndex { get; set; }
+        
         public Slope(int right, int down)
         {
             Right = right;
