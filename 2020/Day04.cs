@@ -70,6 +70,16 @@ namespace adventofcode
                 }
             }
 
+            // Check the last one
+            if (passport.ValidatePassport(false))
+            {
+                validUncheckedPassports++;
+            }
+            if (passport.ValidatePassport(true))
+            {
+                validCheckedPassports++;
+            }
+
             Console.WriteLine($"Valid Unchecked Passports: {validUncheckedPassports}");
             Console.WriteLine($"Valid Checked Passports: {validCheckedPassports}");
         }
