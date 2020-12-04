@@ -148,20 +148,20 @@ namespace adventofcode
         
         public bool ValidateHairColor()
         {
-            string pattern = "#[0-9a-f]+";
-            return hcl.Length == 7 && Regex.Match(hcl, pattern).Success;
+            string pattern = "^#[0-9a-f]{6}$";
+            return Regex.Match(hcl, pattern).Success;
         }
 
         public bool ValidateEyeColor()
         {
-            string pattern = "amb|blu|brn|gry|grn|hzl|oth";
+            string pattern = "^(amb|blu|brn|gry|grn|hzl|oth)$";
             return Regex.Match(ecl, pattern).Success;
         }
 
         public bool ValidatePassportId()
         {
-            string pattern = "[0-9]+";
-            return pid.Length == 9 && Regex.Match(pid, pattern).Success;
+            string pattern = "^[0-9]{9}$";
+            return Regex.Match(pid, pattern).Success;
         }
 
         public bool ValidatePassport(bool validateContents)
