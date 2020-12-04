@@ -13,34 +13,36 @@ namespace adventofcode
             List<string> inputNumbers = File.ReadAllLines(Path.Combine(Environment.CurrentDirectory, "input", "day01.txt")).ToList();
             List<int> inputNumbersAsInts = inputNumbers.Select(i => Int32.Parse(i)).ToList();
 
-            Dictionary<int, int> inputNumbersDict = new Dictionary<int, int>();
+            HashSet<int> processedNumbers = new HashSet<int>();
 
             foreach (int num in inputNumbersAsInts)
             {
                 int val = 2020 - num;
-                if (inputNumbersDict.ContainsKey(val))
+
+                if (processedNumbers.Contains(val))
                 {
                     Console.WriteLine($"{num} * {val} = {num * val}");
                     break;
                 }
                 else
                 {
-                    inputNumbersDict[num] = val;
+                    processedNumbers.Add(num);
                 }
             }
 
-            List<int> lessThan1000 = inputNumbersAsInts.Where(i => i < 1000).ToList();
+            List<int> minimalInputs = inputNumbersAsInts.Where(i => i < 2020/2).ToList();
 
+            HashSet<int> allNumbers = inputNumbersAsInts.ToHashSet();
             bool found = false;
 
-            foreach(int first in lessThan1000)
+            foreach(int first in minimalInputs)
             {
-                foreach (int second in lessThan1000)
+                foreach (int second in minimalInputs)
                 {
                     if (first != second)
                     {
                         int search = 2020 - (first + second);
-                        if (inputNumbersAsInts.Contains(search))
+                        if (allNumbers.Contains(search))
                         {
                             Console.WriteLine($"{first} * {second} * {search} = {first * second * search}");
                             found = true;
