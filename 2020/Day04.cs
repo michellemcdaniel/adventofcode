@@ -35,34 +35,34 @@ namespace adventofcode
 
                 string[] data = line.Split(" ");
                 
-                foreach(string piece in data)
+                foreach(string entry in data)
                 {
-                    string[] entry = piece.Split(":");
-                    switch (entry[0])
+                    string[] pair = entry.Split(":");
+                    switch (pair[0])
                     {
                         case "byr":
-                            passport.byr = entry[1];
+                            passport.BirthYear = pair[1];
                             break;
                         case "iyr":
-                            passport.iyr = entry[1];
+                            passport.IssueYear = pair[1];
                             break;
                         case "eyr":
-                            passport.eyr = entry[1];
+                            passport.ExpirationYear = pair[1];
                             break;
                         case "hgt":
-                            passport.hgt = entry[1];
+                            passport.Height = pair[1];
                             break;
                         case "hcl":
-                            passport.hcl = entry[1];
+                            passport.HairColor = pair[1];
                             break;
                         case "ecl":
-                            passport.ecl = entry[1];
+                            passport.EyeColor = pair[1];
                             break;
                         case "pid":
-                            passport.pid = entry[1];
+                            passport.PassportId = pair[1];
                             break;
                         case "cid":
-                            passport.cid = entry[1];
+                            passport.CountryId = pair[1];
                             break;
                         default:
                             break;
@@ -87,18 +87,18 @@ namespace adventofcode
 
     class Passport
     {
-        public string byr { get; set; }
-        public string iyr { get; set; }
-        public string eyr { get; set; }
-        public string hgt { get; set; }
-        public string hcl { get; set; }
-        public string ecl { get; set; }
-        public string pid { get; set; }
-        public string cid { get; set; }
+        public string BirthYear { get; set; }
+        public string IssueYear { get; set; }
+        public string ExpirationYear { get; set; }
+        public string Height { get; set; }
+        public string HairColor { get; set; }
+        public string EyeColor { get; set; }
+        public string PassportId { get; set; }
+        public string CountryId { get; set; }
 
         public bool ValidateBirthYear()
         {
-            if(Int32.TryParse(byr, out int year))
+            if(Int32.TryParse(BirthYear, out int year))
             {
                 return year >= 1920 && year <= 2002;
             }
@@ -107,7 +107,7 @@ namespace adventofcode
 
         public bool ValidateIssueYear()
         {
-            if(Int32.TryParse(iyr, out int year))
+            if(Int32.TryParse(IssueYear, out int year))
             {
                 return year >= 2010 && year <= 2020;
             }
@@ -116,7 +116,7 @@ namespace adventofcode
 
         public bool ValidateExpirationYear()
         {
-            if(Int32.TryParse(eyr, out int year))
+            if(Int32.TryParse(ExpirationYear, out int year))
             {
                 return year >= 2020 && year <= 2030;
             }
@@ -126,7 +126,7 @@ namespace adventofcode
         public bool ValidateHeight()
         {
             string pattern = "(?<height>[0-9]+)(?<unit>in|cm)";
-            Match match = Regex.Match(hgt, pattern);
+            Match match = Regex.Match(Height, pattern);
             if (match.Success)
             {
                 int height = Int32.Parse(match.Groups["height"].Value);
@@ -149,30 +149,30 @@ namespace adventofcode
         public bool ValidateHairColor()
         {
             string pattern = "^#[0-9a-f]{6}$";
-            return Regex.Match(hcl, pattern).Success;
+            return Regex.Match(HairColor, pattern).Success;
         }
 
         public bool ValidateEyeColor()
         {
             string pattern = "^(amb|blu|brn|gry|grn|hzl|oth)$";
-            return Regex.Match(ecl, pattern).Success;
+            return Regex.Match(EyeColor, pattern).Success;
         }
 
         public bool ValidatePassportId()
         {
             string pattern = "^[0-9]{9}$";
-            return Regex.Match(pid, pattern).Success;
+            return Regex.Match(PassportId, pattern).Success;
         }
 
         public bool ValidatePassport(bool validateContents)
         {
-            bool allProvided = !string.IsNullOrEmpty(byr) &&
-                !string.IsNullOrEmpty(iyr) &&
-                !string.IsNullOrEmpty(eyr) &&
-                !string.IsNullOrEmpty(hgt) &&
-                !string.IsNullOrEmpty(hcl) &&
-                !string.IsNullOrEmpty(ecl) &&
-                !string.IsNullOrEmpty(pid);
+            bool allProvided = !string.IsNullOrEmpty(BirthYear) &&
+                !string.IsNullOrEmpty(IssueYear) &&
+                !string.IsNullOrEmpty(ExpirationYear) &&
+                !string.IsNullOrEmpty(Height) &&
+                !string.IsNullOrEmpty(HairColor) &&
+                !string.IsNullOrEmpty(EyeColor) &&
+                !string.IsNullOrEmpty(PassportId);
 
             if (validateContents)
             {
