@@ -115,7 +115,7 @@ namespace adventofcode
 
         public bool ValidateHeight()
         {
-            string pattern = "(?<height>[0-9]+)(?<unit>.*)";
+            string pattern = "(?<height>[0-9]+)(?<unit>in|cm)";
             Match match = Regex.Match(hgt, pattern);
             if (match.Success)
             {
@@ -138,28 +138,20 @@ namespace adventofcode
         
         public bool ValidateHairColor()
         {
-            string pattern = @"#[0-9a-f]+";
-            Match match = Regex.Match(hcl, pattern);
-            return match.Success && hcl.Length == 7;
+            string pattern = "#[0-9a-f]+";
+            return hcl.Length == 7 && Regex.Match(hcl, pattern).Success;
         }
 
         public bool ValidateEyeColor()
         {
-            return ecl == "amb" || 
-                ecl == "blu" ||
-                ecl == "brn" ||
-                ecl == "gry" ||
-                ecl == "grn" ||
-                ecl == "hzl" ||
-                ecl == "oth";
+            string pattern = "amb|blu|brn|gry|grn|hzl|oth";
+            return Regex.Match(ecl, pattern).Success;
         }
 
         public bool ValidatePassportId()
         {
-            string pattern = @"[0-9]+";
-            Match match = Regex.Match(pid, pattern);
-
-            return match.Success && pid.Length == 9;
+            string pattern = "[0-9]+";
+            return pid.Length == 9 && Regex.Match(pid, pattern).Success;
         }
 
         public bool ValidatePassport(bool validateContents)
