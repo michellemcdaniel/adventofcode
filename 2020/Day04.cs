@@ -11,26 +11,28 @@ namespace adventofcode
         public static void Execute()
         {
             List<string> inputPassports = File.ReadAllLines(Path.Combine(Environment.CurrentDirectory, "input", "day04.txt")).ToList();
-            List<Passport> passports = new List<Passport>();
-            bool createNew = true;
+
+            Passport passport = new Passport();
+            int validCheckedPassports = 0;
+            int validUncheckedPassports = 0;
             
             foreach (string line in inputPassports)
             {
                 if (string.IsNullOrEmpty(line))
                 {
-                    createNew = true;
+                    if (passport.ValidatePassport(false))
+                    {
+                        validUncheckedPassports++;
+                    }
+                    if (passport.ValidatePassport(true))
+                    {
+                        validCheckedPassports++;
+                    }
+
+                    passport = new Passport();
                     continue;
                 }
 
-                Passport passport;
-                if (createNew)
-                {
-                    passport = new Passport();
-                }
-                else
-                {
-                    passport = passports.Last();
-                }
                 string[] data = line.Split(" ");
                 
                 foreach(string piece in data)
@@ -66,32 +68,10 @@ namespace adventofcode
                             break;
                     }
                 }
-                if (createNew)
-                {
-                    passports.Add(passport);
-                }
-
-                createNew = false;
             }
 
-            int validPassports = 0;
-
-            foreach(Passport passport in passports)
-            {
-                if (!string.IsNullOrEmpty(passport.byr) &&
-                    !string.IsNullOrEmpty(passport.iyr) &&
-                    !string.IsNullOrEmpty(passport.eyr) &&
-                    !string.IsNullOrEmpty(passport.hgt) &&
-                    !string.IsNullOrEmpty(passport.hcl) &&
-                    !string.IsNullOrEmpty(passport.ecl) &&
-                    !string.IsNullOrEmpty(passport.pid) &&
-                    passport.ValidatePassport())
-                {
-                    validPassports++;
-                }
-            }
-
-            Console.WriteLine($"Valid Passports: {validPassports}");
+            Console.WriteLine($"Valid Unchecked Passports: {validUncheckedPassports}");
+            Console.WriteLine($"Valid Checked Passports: {validCheckedPassports}");
         }
     }
 
@@ -182,15 +162,29 @@ namespace adventofcode
             return match.Success && pid.Length == 9;
         }
 
-        public bool ValidatePassport()
+        public bool ValidatePassport(bool validateContents)
         {
-            return ValidateBirthYear() &&
-                ValidateExpirationYear() &&
-                ValidateEyeColor() &&
-                ValidateHairColor() &&
-                ValidateHeight() &&
-                ValidateIssueYear() &&
-                ValidatePassportId();
+            bool allProvided = !string.IsNullOrEmpty(byr) &&
+                !string.IsNullOrEmpty(iyr) &&
+                !string.IsNullOrEmpty(eyr) &&
+                !string.IsNullOrEmpty(hgt) &&
+                !string.IsNullOrEmpty(hcl) &&
+                !string.IsNullOrEmpty(ecl) &&
+                !string.IsNullOrEmpty(pid);
+
+            if (validateContents)
+            {
+                return allProvided &&
+                    ValidateBirthYear() &&
+                    ValidateExpirationYear() &&
+                    ValidateEyeColor() &&
+                    ValidateHairColor() &&
+                    ValidateHeight() &&
+                    ValidateIssueYear() &&
+                    ValidatePassportId();
+            }
+
+            return allProvided;
         }
     }
 }
