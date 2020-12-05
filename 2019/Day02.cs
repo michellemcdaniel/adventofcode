@@ -23,31 +23,9 @@ namespace adventofcode
                         opcodes[1] = noun;
                         opcodes[2] = verb;
 
-                        int currentOpcode = opcodes[0];
-                        int currentLocation = 0;
+                        IntCode intCode = new IntCode(opcodes);
 
-                        while(currentOpcode != 99 && currentLocation < opcodes.Length)
-                        {
-                            int replaceLocation = opcodes[currentLocation+3];
-                            int firstInputLocation = opcodes[currentLocation+1];
-                            int secondInputLocation = opcodes[currentLocation+2];
-
-                            switch (currentOpcode)
-                            {
-                                case 1:
-                                    opcodes[replaceLocation] = opcodes[firstInputLocation] + opcodes[secondInputLocation];
-                                    break;
-                                case 2:
-                                    opcodes[replaceLocation] = opcodes[firstInputLocation] * opcodes[secondInputLocation];
-                                    break;
-                                default:
-                                    break;
-                            }
-                            currentLocation = currentLocation+4;
-                            currentOpcode = opcodes[currentLocation];
-                        }
-
-                        if (opcodes[0] == 19690720)
+                        if (intCode.Compute(0) == 19690720)
                         {
                             Console.WriteLine($"100 * {noun} + {verb} = {100*noun + verb}");
                             found = true;
