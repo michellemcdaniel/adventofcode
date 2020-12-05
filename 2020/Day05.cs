@@ -13,7 +13,7 @@ namespace adventofcode
             List<string> input = File.ReadAllLines(Path.Combine(Environment.CurrentDirectory, "input", "day05.txt")).ToList();
 
             int maxId = 0;
-
+            int minId = 128*8+7;
             List<int> emptySeats = new List<int>();
 
             for (int i = 0; i < 128; i++)
@@ -67,13 +67,14 @@ namespace adventofcode
 
                 int id = rowMax*8+columnMax;
                 maxId = id > maxId ? id : maxId;
+                minId = id < minId ? id : minId;
 
                 emptySeats.Remove(id);
             }
 
             Console.WriteLine($"Max ID: {maxId}");
 
-            foreach(int id in emptySeats)
+            foreach(int id in emptySeats.Where(s => s < maxId && s > minId))
             {
                 if (!emptySeats.Contains(id-1) && !emptySeats.Contains(id+1))
                 {
