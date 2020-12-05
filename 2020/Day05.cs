@@ -17,9 +17,7 @@ namespace adventofcode
 
             foreach(string seat in input)
             {
-                string seatInBinary = seat.Replace('F', '0').Replace('B','1').Replace('L','0').Replace('R','1');
-
-                int id = Convert.ToInt32(seatInBinary, 2);
+                int id = Convert.ToInt32(seat.Replace('F', '0').Replace('B','1').Replace('L','0').Replace('R','1'), 2);
                 maxId = Math.Max(id, maxId);
                 minId = Math.Min(id, minId);
 
