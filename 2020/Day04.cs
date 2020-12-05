@@ -13,8 +13,8 @@ namespace adventofcode
             List<string> inputPassports = File.ReadAllLines(Path.Combine(Environment.CurrentDirectory, "input", "day04.txt")).ToList();
 
             Passport passport = new Passport();
-            int validCheckedPassports = 0;
-            int validUncheckedPassports = 0;
+            int validatedPassports = 0;
+            int checkedPassports = 0;
             
             foreach (string line in inputPassports)
             {
@@ -22,11 +22,11 @@ namespace adventofcode
                 {
                     if (passport.ValidatePassport(false))
                     {
-                        validUncheckedPassports++;
+                        checkedPassports++;
                     }
                     if (passport.ValidatePassport(true))
                     {
-                        validCheckedPassports++;
+                        validatedPassports++;
                     }
 
                     passport = new Passport();
@@ -73,15 +73,15 @@ namespace adventofcode
             // Check the last one
             if (passport.ValidatePassport(false))
             {
-                validUncheckedPassports++;
+                checkedPassports++;
             }
             if (passport.ValidatePassport(true))
             {
-                validCheckedPassports++;
+                validatedPassports++;
             }
 
-            Console.WriteLine($"Valid Unchecked Passports: {validUncheckedPassports}");
-            Console.WriteLine($"Valid Checked Passports: {validCheckedPassports}");
+            Console.WriteLine($"Passports with all required fields: {checkedPassports}");
+            Console.WriteLine($"Valid Passports: {validatedPassports}");
         }
     }
 
@@ -148,20 +148,17 @@ namespace adventofcode
         
         public bool ValidateHairColor()
         {
-            string pattern = "^#[0-9a-f]{6}$";
-            return Regex.Match(HairColor, pattern).Success;
+            return Regex.Match(HairColor, "^#[0-9a-f]{6}$").Success;
         }
 
         public bool ValidateEyeColor()
         {
-            string pattern = "^(amb|blu|brn|gry|grn|hzl|oth)$";
-            return Regex.Match(EyeColor, pattern).Success;
+            return Regex.Match(EyeColor, "^(amb|blu|brn|gry|grn|hzl|oth)$").Success;
         }
 
         public bool ValidatePassportId()
         {
-            string pattern = "^[0-9]{9}$";
-            return Regex.Match(PassportId, pattern).Success;
+            return Regex.Match(PassportId, "^[0-9]{9}$").Success;
         }
 
         public bool ValidatePassport(bool validateContents)
