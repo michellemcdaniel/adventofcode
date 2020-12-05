@@ -26,46 +26,11 @@ namespace adventofcode
 
             foreach(string seat in input)
             {
-                char[] rowArray = seat.Take(7).ToArray();
-                char[] columnArray = seat.Skip(7).Take(3).ToArray();
+                string seatInBinary = seat.Replace('F', '0').Replace('B','1').Replace('L','0').Replace('R','1');
+                string row = new string(seatInBinary.Take(7).ToArray());
+                string column = new string(seatInBinary.Skip(7).Take(3).ToArray());
 
-                int rowMax = 127;
-                int rowMin = 0;
-
-                foreach(char rowChar in rowArray)
-                {
-                    switch (rowChar)
-                    {
-                        case 'F':
-                            rowMax = (rowMax+rowMin+1)/2-1;
-                            break;
-                        case 'B':
-                            rowMin = (rowMax+rowMin+1)/2;
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                int columnMax = 7;
-                int columnMin = 0;
-                
-                foreach(char columnChar in columnArray)
-                {
-                    switch (columnChar)
-                    {
-                        case 'L':
-                            columnMax = (columnMax+columnMin+1)/2 - 1;
-                            break;
-                        case 'R':
-                            columnMin = (columnMax+columnMin+1)/2;
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                int id = rowMax*8+columnMax;
+                int id = Convert.ToInt32(row, 2)*8+Convert.ToInt32(column, 2);
                 maxId = id > maxId ? id : maxId;
                 minId = id < minId ? id : minId;
 
