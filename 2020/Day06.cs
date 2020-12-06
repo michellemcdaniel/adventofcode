@@ -35,13 +35,8 @@ namespace adventofcode
                     oneAnswered.Add(c);
                 }
 
-                foreach (char c in allAnswered)
-                {
-                    if (!line.Contains(c))
-                    {
-                        allAnswered.Remove(c);
-                    }
-                }
+                HashSet<char> currentAnswers = new HashSet<char>(line.ToCharArray());
+                allAnswered.IntersectWith(currentAnswers);
             }
 
             Console.WriteLine($"One answered: {totalOneAnswered}");
