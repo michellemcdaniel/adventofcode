@@ -7,7 +7,8 @@ namespace adventofcode
 {
     public class IntCode
     {
-        public int[] Opcodes { get;}
+        public int[] Opcodes { get; }
+        public bool Halted { get; set; }
 
         public IntCode(int[] opcodes)
         {
@@ -28,7 +29,7 @@ namespace adventofcode
             }
         }
 
-        public int Compute(int input)
+        public int Compute(int input, int phase)
         {
             int currentOpcode = Opcodes[0];
             int currentLocation = 0;
@@ -40,6 +41,7 @@ namespace adventofcode
             int jumpLocation = 0;
 
             int currentInput = input;
+            bool usedPhase = phase < 0 ? true : false;
 
             while(currentOpcode != 99 && currentLocation < Opcodes.Length)
             {
@@ -64,7 +66,15 @@ namespace adventofcode
                         break;
                     case 3: 
                         replaceLocation = GetParameter(currentLocation+1, inst.FirstParameterMode);
-                        Opcodes[replaceLocation] = currentInput;
+                        if (!usedPhase)
+                        {
+                            Opcodes[replaceLocation] = phase;
+                            usedPhase = true;
+                        }
+                        else
+                        {
+                            Opcodes[replaceLocation] = currentInput;
+                        }
                         currentLocation = currentLocation+2;
                         break;
                     case 4:
@@ -133,7 +143,22 @@ namespace adventofcode
                 currentOpcode = Opcodes[currentLocation];
             }
 
+            if (currentLocation < Opcodes.Length)
+            {
+                Halted = true;
+            }
+
             return currentInput;
+        }
+
+        public int Compute()
+        {
+            return Compute(-1);
+        }
+
+        public int Compute(int input)
+        {
+            return Compute(input, -1);
         }
     }
 
