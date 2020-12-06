@@ -29,8 +29,7 @@ namespace adventofcode
                     continue;
                 }
 
-                char[] lineToCharArray = line.ToCharArray();
-                foreach (char c in lineToCharArray)
+                foreach (char c in line)
                 {
                     oneAnswered.Add(c);
                 }

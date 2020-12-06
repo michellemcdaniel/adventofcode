@@ -22,7 +22,7 @@ namespace adventofcode
                 string[] minMax = rule[0].Split("-");
 
                 string password = ruleToPassword[1];
-                char letter = rule[1].ToCharArray()[0];
+                char letter = rule[1][0];
 
                 int min = Int32.Parse(minMax[0]);
                 int max = Int32.Parse(minMax[1]);
@@ -34,8 +34,7 @@ namespace adventofcode
                     problemOnePasswords++;
                 }
 
-                char[] passwordAsCharArray = password.ToCharArray();
-                if (passwordAsCharArray[min-1] == letter ^ passwordAsCharArray[max-1] == letter)
+                if (password[min-1] == letter ^ password[max-1] == letter)
                 {
                     problemTwoPasswords++;
                 }

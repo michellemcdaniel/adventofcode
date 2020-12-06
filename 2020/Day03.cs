@@ -30,15 +30,13 @@ namespace adventofcode
                     continue;
                 }
 
-                char[] rowAsCharArray = row.ToCharArray();
-
                 foreach (Slope slope in slopes)
                 {
                     if (currentRow % slope.Down == 0)
                     {
                         slope.CurrentIndex = (slope.CurrentIndex+slope.Right)%row.Length;
                         
-                        if (rowAsCharArray[slope.CurrentIndex] == '#')
+                        if (row[slope.CurrentIndex] == '#')
                         {
                             slope.Trees++;
                         }
