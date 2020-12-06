@@ -10,6 +10,7 @@ namespace adventofcode
         public static void Execute()
         {
             List<string> input = File.ReadAllLines(Path.Combine(Environment.CurrentDirectory, "input", "day06.txt")).ToList();
+            input.Add("");
 
             HashSet<char> allAnswered = new HashSet<char>{ 'a', 'b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z' };
             HashSet<char> oneAnswered = new HashSet<char>();
@@ -42,9 +43,6 @@ namespace adventofcode
                     }
                 }
             }
-
-            totalOneAnswered += oneAnswered.Count;
-            totalAllAnswered += allAnswered.Count;
 
             Console.WriteLine($"One answered: {totalOneAnswered}");
             Console.WriteLine($"All answered: {totalAllAnswered}");

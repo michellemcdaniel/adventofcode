@@ -11,6 +11,7 @@ namespace adventofcode
         public static void Execute()
         {
             List<string> inputPassports = File.ReadAllLines(Path.Combine(Environment.CurrentDirectory, "input", "day04.txt")).ToList();
+            inputPassports.Add("");
 
             Passport passport = new Passport();
             int validatedPassports = 0;
@@ -68,16 +69,6 @@ namespace adventofcode
                             break;
                     }
                 }
-            }
-
-            // Check the last one
-            if (passport.ValidatePassport(false))
-            {
-                checkedPassports++;
-            }
-            if (passport.ValidatePassport(true))
-            {
-                validatedPassports++;
             }
 
             Console.WriteLine($"Passports with all required fields: {checkedPassports}");
