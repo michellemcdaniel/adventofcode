@@ -29,25 +29,33 @@ namespace adventofcode
                         new IntCode(intcode.Split(",").ToList().Select(o => Int32.Parse(o)).ToArray())
                     };
 
-                    int inputToIntCode = 0;
+                    Queue<int> inputToIntCode = new Queue<int>();
+                    inputToIntCode.Enqueue(0);
+                    int startInput = 0;
 
                     while (true)
                     {
-                        for(int i = 0; i < permutation.Count; i++)
+                        for (int i = 0; i < permutation.Count; i++)
                         {
-                            inputToIntCode = intCodes[i].Compute(inputToIntCode, permutation[i]);
-                            Console.WriteLine($"{inputToIntCode} - {permutation[i]}");
+                            startInput = inputToIntCode.Dequeue();
+                            inputToIntCode = intCodes[i].Compute(startInput, permutation[i]);
                         }
 
-                        if(intCodes.Last().Halted)
+                        if(inputToIntCode.Count == 1)
                         {
                             break;
                         }
+
+                        for(int i = 0; i < permutation.Count; i++)
+                        {
+                            inputToIntCode = intCodes[i].Compute(inputToIntCode);
+                        }
                     }
 
-                    if (inputToIntCode > maxOutput)
+                    int output = inputToIntCode.Dequeue();
+                    if (output > maxOutput)
                     {
-                        maxOutput = inputToIntCode;
+                        maxOutput = output;
                         maxPermutation = permutation;
                     }
                 }

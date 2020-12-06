@@ -29,7 +29,7 @@ namespace adventofcode
             }
         }
 
-        public int Compute(int input, int phase)
+        public Queue<int> Compute(Queue<int> input)
         {
             int currentOpcode = Opcodes[0];
             int currentLocation = 0;
@@ -40,10 +40,7 @@ namespace adventofcode
             int condition = 0;
             int jumpLocation = 0;
 
-            int currentInput = input;
-            if (currentInput < 0)
-                currentInput = phase;
-            bool usedPhase = phase < 0 ? true : false;
+            Queue<int> currentInput = input;
 
             while(currentOpcode != 99 && currentLocation < Opcodes.Length)
             {
@@ -68,20 +65,12 @@ namespace adventofcode
                         break;
                     case 3: 
                         replaceLocation = GetParameter(currentLocation+1, inst.FirstParameterMode);
-                        if (!usedPhase)
-                        {
-                            Opcodes[replaceLocation] = phase;
-                            usedPhase = true;
-                        }
-                        else
-                        {
-                            Opcodes[replaceLocation] = currentInput;
-                        }
+                        Opcodes[replaceLocation] = currentInput.Dequeue();
                         currentLocation = currentLocation+2;
                         break;
                     case 4:
                         replaceLocation = GetParameter(currentLocation+1, inst.FirstParameterMode);
-                        currentInput = Opcodes[replaceLocation];
+                        currentInput.Enqueue(Opcodes[replaceLocation]);
                         currentLocation = currentLocation+2;
                         break;
                     case 5:
@@ -153,14 +142,25 @@ namespace adventofcode
             return currentInput;
         }
 
-        public int Compute()
+        public Queue<int> Compute()
         {
-            return Compute(-1);
+            return Compute(new Queue<int>());
         }
 
-        public int Compute(int input)
+        public Queue<int> Compute(int input)
         {
-            return Compute(input, -1);
+            Queue<int> inputQueue = new Queue<int>();
+            inputQueue.Enqueue(input);
+            return Compute(inputQueue);
+        }
+
+        public Queue<int> Compute(int input, int phase)
+        {
+            Queue<int> inputQueue = new Queue<int>();
+            inputQueue.Enqueue(phase);
+            inputQueue.Enqueue(input);
+
+            return Compute(inputQueue);
         }
     }
 

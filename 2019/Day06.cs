@@ -74,14 +74,12 @@ namespace adventofcode
         public string Name { get; set; }
         public List<ObjectInSpace> Oribiters { get; }
         public ObjectInSpace DirectlyOrbits { get; set; }
-        bool Checked;
 
         public ObjectInSpace(string name, ObjectInSpace directlyOrbits)
         {
             Name = name;
             Oribiters = new List<ObjectInSpace>();
             DirectlyOrbits = directlyOrbits;
-            Checked = false;
         }
 
         public void AddOrbiter(ObjectInSpace orbiter)

@@ -24,8 +24,9 @@ namespace adventofcode
                         opcodes[2] = verb;
 
                         IntCode intCode = new IntCode(opcodes);
+                        intCode.Compute();
 
-                        if (intCode.Compute(0) == 19690720)
+                        if (intCode.Opcodes[0] == 19690720)
                         {
                             Console.WriteLine($"100 * {noun} + {verb} = {100*noun + verb}");
                             found = true;

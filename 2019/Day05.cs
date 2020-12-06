@@ -14,7 +14,7 @@ namespace adventofcode
             {
                 int[] opcodes = intcode.Split(",").ToList().Select(o => Int32.Parse(o)).ToArray();
                 IntCode intCode = new IntCode(opcodes);
-                Console.WriteLine(intCode.Compute(5));
+                Console.WriteLine(intCode.Compute(5).Dequeue());
             }
         }
     }
