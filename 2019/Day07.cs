@@ -13,7 +13,7 @@ namespace adventofcode
 
             List<List<int>> permutations = GetPermutations(new List<int>{5,6,7,8,9});
 
-            int maxOutput = Int32.MinValue;
+            long maxOutput = long.MinValue;
             List<int> maxPermutation = new List<int>();
 
             foreach(var permutation in permutations)
@@ -22,16 +22,16 @@ namespace adventofcode
                 {
                     List<IntCode> intCodes = new List<IntCode>()
                     {
-                        new IntCode(intcode.Split(",").ToList().Select(o => Int32.Parse(o)).ToArray()),
-                        new IntCode(intcode.Split(",").ToList().Select(o => Int32.Parse(o)).ToArray()),
-                        new IntCode(intcode.Split(",").ToList().Select(o => Int32.Parse(o)).ToArray()),
-                        new IntCode(intcode.Split(",").ToList().Select(o => Int32.Parse(o)).ToArray()),
-                        new IntCode(intcode.Split(",").ToList().Select(o => Int32.Parse(o)).ToArray())
+                        new IntCode(intcode.Split(",").ToList().Select(o => long.Parse(o)).ToArray()),
+                        new IntCode(intcode.Split(",").ToList().Select(o => long.Parse(o)).ToArray()),
+                        new IntCode(intcode.Split(",").ToList().Select(o => long.Parse(o)).ToArray()),
+                        new IntCode(intcode.Split(",").ToList().Select(o => long.Parse(o)).ToArray()),
+                        new IntCode(intcode.Split(",").ToList().Select(o => long.Parse(o)).ToArray())
                     };
 
-                    Queue<int> inputToIntCode = new Queue<int>();
+                    Queue<long> inputToIntCode = new Queue<long>();
                     inputToIntCode.Enqueue(0);
-                    int startInput = 0;
+                    long startInput = 0;
 
                     while (true)
                     {
@@ -52,7 +52,7 @@ namespace adventofcode
                         }
                     }
 
-                    int output = inputToIntCode.Dequeue();
+                    long output = inputToIntCode.Dequeue();
                     if (output > maxOutput)
                     {
                         maxOutput = output;

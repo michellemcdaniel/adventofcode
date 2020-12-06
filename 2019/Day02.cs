@@ -18,7 +18,7 @@ namespace adventofcode
                 {
                     for (int verb = 0; verb < 100; verb++)
                     {
-                        int[] opcodes = intcode.Split(",").ToList().Select(o => Int32.Parse(o)).ToArray();
+                        long[] opcodes = intcode.Split(",").ToList().Select(o => long.Parse(o)).ToArray();
 
                         opcodes[1] = noun;
                         opcodes[2] = verb;

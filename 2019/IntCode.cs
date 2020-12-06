@@ -7,40 +7,52 @@ namespace adventofcode
 {
     public class IntCode
     {
-        public int[] Opcodes { get; }
+        public long[] Opcodes { get; }
         public bool Halted { get; set; }
+        public long RelativeBase { get; set; }
 
-        public IntCode(int[] opcodes)
+        public IntCode(long[] opcodes)
         {
-            Opcodes = opcodes;
+            Opcodes = new long[100000000];
+            for (long i = 0; i < opcodes.Length; i++)
+            {
+                Opcodes[i] = opcodes[i];
+            }
+            RelativeBase = 0;
         }
 
-        public int GetParameter(int location, int mode)
+        public long GetParameter(long location, long mode)
         {
             if (mode == 0)
             {
                 // Position mode
                 return Opcodes[location];
             }
-            else
+            else if (mode == 1)
             {
                 // Immediate mode
                 return location;
             }
+            else if (mode == 2)
+            {
+                // Relative mode
+                return Opcodes[location]+RelativeBase;
+            }
+            return location;
         }
 
-        public Queue<int> Compute(Queue<int> input)
+        public Queue<long> Compute(Queue<long> input)
         {
-            int currentOpcode = Opcodes[0];
-            int currentLocation = 0;
-            int replaceLocation = 0;
-            int firstInput = 0;
-            int secondInput = 0;
+            long currentOpcode = Opcodes[0];
+            long currentLocation = 0;
+            long replaceLocation = 0;
+            long firstInput = 0;
+            long secondInput = 0;
 
-            int condition = 0;
-            int jumpLocation = 0;
+            long condition = 0;
+            long jumpLocation = 0;
 
-            Queue<int> currentInput = input;
+            Queue<long> currentInput = input;
 
             while(currentOpcode != 99 && currentLocation < Opcodes.Length)
             {
@@ -127,6 +139,11 @@ namespace adventofcode
                         }
                         currentLocation = currentLocation+4;
                         break;
+                    case 9:
+                        firstInput = GetParameter(currentLocation+1, inst.FirstParameterMode);
+                        RelativeBase += Opcodes[firstInput];
+                        currentLocation = currentLocation+2;
+                        break;
                     default:
                         break;
                 }
@@ -142,21 +159,21 @@ namespace adventofcode
             return currentInput;
         }
 
-        public Queue<int> Compute()
+        public Queue<long> Compute()
         {
-            return Compute(new Queue<int>());
+            return Compute(new Queue<long>());
         }
 
-        public Queue<int> Compute(int input)
+        public Queue<long> Compute(long input)
         {
-            Queue<int> inputQueue = new Queue<int>();
+            Queue<long> inputQueue = new Queue<long>();
             inputQueue.Enqueue(input);
             return Compute(inputQueue);
         }
 
-        public Queue<int> Compute(int input, int phase)
+        public Queue<long> Compute(long input, long phase)
         {
-            Queue<int> inputQueue = new Queue<int>();
+            Queue<long> inputQueue = new Queue<long>();
             inputQueue.Enqueue(phase);
             inputQueue.Enqueue(input);
 
@@ -166,12 +183,12 @@ namespace adventofcode
 
     public class Instruction
     {
-        public int Opcode { get; }
-        public int FirstParameterMode { get; }
-        public int SecondParameterMode { get; }
-        public int ThirdParameterMode { get; }
+        public long Opcode { get; }
+        public long FirstParameterMode { get; }
+        public long SecondParameterMode { get; }
+        public long ThirdParameterMode { get; }
 
-        public Instruction(int instruction)
+        public Instruction(long instruction)
         {
             string inst = instruction.ToString();
             inst = new string(inst.Reverse().ToArray());
