@@ -20,7 +20,6 @@ namespace adventofcode
             {
                 foreach(string intcode in input)
                 {
-                    int[] opcodes = intcode.Split(",").ToList().Select(o => Int32.Parse(o)).ToArray();
                     List<IntCode> intCodes = new List<IntCode>()
                     {
                         new IntCode(intcode.Split(",").ToList().Select(o => Int32.Parse(o)).ToArray()),

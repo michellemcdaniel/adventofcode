@@ -41,6 +41,8 @@ namespace adventofcode
             int jumpLocation = 0;
 
             int currentInput = input;
+            if (currentInput < 0)
+                currentInput = phase;
             bool usedPhase = phase < 0 ? true : false;
 
             while(currentOpcode != 99 && currentLocation < Opcodes.Length)
