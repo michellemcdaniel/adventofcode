@@ -15,19 +15,19 @@ namespace adventofcode
             int problemOnePasswords = 0;
             int problemTwoPasswords = 0;
 
+            string pattern = @"^(?<min>\d+)-(?<max>\d+) (?<letter>[a-z]): (?<password>[a-z]+)$";
+
             foreach (var input in inputPasswords)
             {
-                string[] ruleToPassword = input.Split(": ");
-                string[] rule = ruleToPassword[0].Split(" ");
-                string[] minMax = rule[0].Split("-");
+                Match match = Regex.Match(input, pattern);
 
-                string password = ruleToPassword[1];
-                char letter = rule[1][0];
+                string password = match.Groups["password"].Value;
+                char letter = match.Groups["letter"].Value[0];
 
-                int min = Int32.Parse(minMax[0]);
-                int max = Int32.Parse(minMax[1]);
+                int min = Int32.Parse(match.Groups["min"].Value);
+                int max = Int32.Parse(match.Groups["max"].Value);
 
-                int countRequired = Regex.Matches(password, rule[1]).Count;
+                int countRequired = Regex.Matches(password, letter.ToString()).Count;
 
                 if (countRequired >= min && countRequired <= max)
                 {
