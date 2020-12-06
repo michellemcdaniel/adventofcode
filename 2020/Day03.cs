@@ -21,7 +21,6 @@ namespace adventofcode
 
             int currentRow = 0;
 
-
             foreach(string row in inputMap)
             {
                 if (currentRow == 0)
