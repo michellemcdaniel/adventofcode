@@ -44,14 +44,13 @@ namespace adventofcode
             colors.Enqueue("shiny gold");
             HashSet<string> foundColors = new HashSet<string>();
 
-            while (colors.Count() > 0)
+            while (colors.Any())
             {
                 string color = colors.Dequeue();
                 foreach(Bag bag in bags)
                 {
                     if (bag.Contents.Keys.Contains(color))
                     {
-                        
                         foundColors.Add(bag.Color);
                         colors.Enqueue(bag.Color);
                     }
@@ -63,7 +62,7 @@ namespace adventofcode
 
             int totalBags = 0;
 
-            while (bagsInGold.Count() > 0)
+            while (bagsInGold.Any())
             {
                 (string color, int count) = bagsInGold.Dequeue();
                 Bag bag = bags.First(b => b.Color == color);
