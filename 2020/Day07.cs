@@ -14,7 +14,7 @@ namespace adventofcode
             
             List<Bag> bags = new List<Bag>();
 
-            string pattern = @"^(?<color>.*) bags contain (?<contents>.*)\.?$";
+            string pattern = @"^(?<color>.*) bags contain (?<contents>.*)\.$";
             foreach(string rule in input)
             {
                 Match match = Regex.Match(rule, pattern);
@@ -28,7 +28,7 @@ namespace adventofcode
 
                     foreach (string content in contents)
                     {
-                        string contentPattern = @"^(?<count>\d+) (?<content>.*) bag";
+                        string contentPattern = @"^(?<count>\d+) (?<content>.*) bags?$";
                         Match contentMatch = Regex.Match(content, contentPattern);
                         if (contentMatch.Success)
                         {
