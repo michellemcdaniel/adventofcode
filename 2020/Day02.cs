@@ -8,9 +8,9 @@ namespace adventofcode
 {
     class Day02
     {
-        public static void Execute()
+        public static void Execute(string filename)
         {
-            List<string> inputPasswords = File.ReadAllLines(Path.Combine(Environment.CurrentDirectory, "input", "day02.txt")).ToList();
+            List<string> inputPasswords = File.ReadAllLines(filename).ToList();
 
             int problemOnePasswords = 0;
             int problemTwoPasswords = 0;

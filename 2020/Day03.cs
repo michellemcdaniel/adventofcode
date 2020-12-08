@@ -7,9 +7,9 @@ namespace adventofcode
 {
     class Day03
     {
-        public static void Execute()
+        public static void Execute(string filename)
         {
-            List<string> inputMap = File.ReadAllLines(Path.Combine(Environment.CurrentDirectory, "input", "day03.txt")).ToList();
+            List<string> inputMap = File.ReadAllLines(filename).ToList();
             List<Slope> slopes = new List<Slope>()
             {
                 new Slope(1,1),

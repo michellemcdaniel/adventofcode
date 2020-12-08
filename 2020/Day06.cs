@@ -7,9 +7,9 @@ namespace adventofcode
 {
     class Day06
     {
-        public static void Execute()
+        public static void Execute(string filename)
         {
-            List<string> input = File.ReadAllLines(Path.Combine(Environment.CurrentDirectory, "input", "day06.txt")).ToList();
+            List<string> input = File.ReadAllLines(filename).ToList();
             input.Add("");
 
             HashSet<char> allAnswered = new HashSet<char>{ 'a', 'b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z' };

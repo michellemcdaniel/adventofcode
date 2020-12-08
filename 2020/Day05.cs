@@ -7,9 +7,9 @@ namespace adventofcode
 {
     class Day05
     {
-        public static void Execute()
+        public static void Execute(string filename)
         {
-            List<string> input = File.ReadAllLines(Path.Combine(Environment.CurrentDirectory, "input", "day05.txt")).ToList();
+            List<string> input = File.ReadAllLines(filename).ToList();
 
             int maxId = 0;
             int minId = 128*8+7;

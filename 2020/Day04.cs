@@ -8,9 +8,9 @@ namespace adventofcode
 {
     class Day04
     {
-        public static void Execute()
+        public static void Execute(string filename)
         {
-            List<string> inputPassports = File.ReadAllLines(Path.Combine(Environment.CurrentDirectory, "input", "day04.txt")).ToList();
+            List<string> inputPassports = File.ReadAllLines(filename).ToList();
             inputPassports.Add("");
 
             Passport passport = new Passport();

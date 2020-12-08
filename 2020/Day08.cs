@@ -9,9 +9,9 @@ namespace adventofcode
 {
     class Day08
     {
-        public static void Execute()
+        public static void Execute(string filename)
         {
-            List<string> input = File.ReadAllLines(Path.Combine(Environment.CurrentDirectory, "input", "day08.txt")).ToList();
+            List<string> input = File.ReadAllLines(filename).ToList();
             int accumulator = 0;
 
             CheckProgram(input, out accumulator);

@@ -7,9 +7,9 @@ namespace adventofcode
 {
     class Day01
     {
-        public static void Execute()
+        public static void Execute(string filename)
         {
-            List<string> inputNumbers = File.ReadAllLines(Path.Combine(Environment.CurrentDirectory, "input", "day01.txt")).ToList();
+            List<string> inputNumbers = File.ReadAllLines(filename).ToList();
             List<int> inputNumbersAsInts = inputNumbers.Select(i => Int32.Parse(i)).ToList();
 
             HashSet<int> processedNumbers = new HashSet<int>();
