@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace adventofcode
 {
@@ -20,7 +18,14 @@ namespace adventofcode
             for (int i = 0; i < input.Count(); i++)
             {
                 string original = input[i];
-                input[i] = input[i].Contains("nop") ? input[i].Replace("nop", "jmp") : input[i].Replace("jmp", "nop");
+
+                // not replacing anything in acc instructions, so continue
+                if (input[i].StartsWith("acc"))
+                {
+                    continue;
+                }
+
+                input[i] = input[i].StartsWith("nop") ? input[i].Replace("nop", "jmp") : input[i].Replace("jmp", "nop");
                 
                 if (CheckProgram(input, out accumulator))
                 {
