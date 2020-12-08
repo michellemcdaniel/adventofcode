@@ -76,17 +76,17 @@ namespace adventofcode
             Console.WriteLine($"Total bags that can contain shiny gold: {foundColors.Count()}");   
             Console.WriteLine($"Total bags in a shiny gold: {totalBags}");
         }
-    }
 
-    public class Bag
-    {
-        public string Color { get; set; }
-        public Dictionary<string, int> Contents { get; }
-
-        public Bag(string color, Dictionary<string, int> contents)
+        class Bag
         {
-            Color = color;
-            Contents = contents;
+            public string Color { get; set; }
+            public Dictionary<string, int> Contents { get; }
+
+            public Bag(string color, Dictionary<string, int> contents)
+            {
+                Color = color;
+                Contents = contents;
+            }
         }
     }
 }
