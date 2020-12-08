@@ -351,3 +351,6 @@ MigrationBackup/
 
 # vscode files
 .vscode/
+
+# ignore sample files
+*sample*
