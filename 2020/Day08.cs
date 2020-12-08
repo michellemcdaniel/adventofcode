@@ -20,21 +20,15 @@ namespace adventofcode
 
             for (int i = 0; i < input.Count(); i++)
             {
-                List<string> newInput = new List<string>(input);
-
-                if (newInput[i].Contains("nop"))
-                {
-                    newInput[i] = newInput[i].Replace("nop", "jmp");
-                }
-                else if (newInput[i].Contains("jmp"))
-                {
-                    newInput[i] = newInput[i].Replace("jmp", "nop");
-                }
+                string original = input[i];
+                input[i] = input[i].Contains("nop") ? input[i].Replace("nop", "jmp") : input[i].Replace("jmp", "nop");
                 
-                if (!CheckProgram(newInput, out accumulator))
+                if (!CheckProgram(input, out accumulator))
                 {
                     break;
                 }
+
+                input[i] = original;
             }  
             
             Console.WriteLine($"Part 2: {accumulator}");
