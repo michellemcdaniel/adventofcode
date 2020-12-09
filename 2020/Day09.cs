@@ -19,30 +19,9 @@ namespace adventofcode
 
             for (int i = 25; i < inputAsInts.Count(); i++)
             {
-                bool found = false;
+                List<long> range = inputAsInts.GetRange(i-25, 25);
 
-                for (int j = i-25; j < i; j++)
-                {
-                    for (int k = i-25; k < i; k++)
-                    {
-                        if (k == j)
-                        {
-                            continue;
-                        }
-                        if (inputAsInts[j]+inputAsInts[k] == inputAsInts[i])
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-
-                    if (found)
-                    {
-                        break;
-                    }
-                }
-
-                if (!found)
+                if (!range.Select(s => inputAsInts[i] - s).Intersect(range).Any())
                 {
                     partOne = inputAsInts[i];
                     partOneIndex = i;
@@ -65,7 +44,6 @@ namespace adventofcode
                     if (inputAsInts.GetRange(i, bufferSize).Sum() == partOne)
                     {
                         partTwo = inputAsInts.GetRange(i, bufferSize).Min() + inputAsInts.GetRange(i, bufferSize).Max();
-                        Console.WriteLine($"{i} {i+bufferSize}");
                         found = true;
                         break;
                     }
