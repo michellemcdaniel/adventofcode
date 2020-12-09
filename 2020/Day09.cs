@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace adventofcode
 {
@@ -20,7 +19,7 @@ namespace adventofcode
 
             for (int i = 25; i < inputAsInts.Count(); i++)
             {
-                bool foundGood = false;
+                bool found = false;
 
                 for (int j = i-25; j < i; j++)
                 {
@@ -32,13 +31,18 @@ namespace adventofcode
                         }
                         if (inputAsInts[j]+inputAsInts[k] == inputAsInts[i])
                         {
-                            foundGood = true;
+                            found = true;
                             break;
                         }
                     }
+
+                    if (found)
+                    {
+                        break;
+                    }
                 }
 
-                if (!foundGood)
+                if (!found)
                 {
                     partOne = inputAsInts[i];
                     partOneIndex = i;
@@ -61,6 +65,7 @@ namespace adventofcode
                     if (inputAsInts.GetRange(i, bufferSize).Sum() == partOne)
                     {
                         partTwo = inputAsInts.GetRange(i, bufferSize).Min() + inputAsInts.GetRange(i, bufferSize).Max();
+                        Console.WriteLine($"{i} {i+bufferSize}");
                         found = true;
                         break;
                     }
