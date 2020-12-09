@@ -50,6 +50,9 @@ namespace adventofcode
                 case 8:
                     Day08.Execute(filename);
                     break;
+                case 9:
+                    Day09.Execute(filename);
+                    break;
                 default:
                     Console.WriteLine($"Day {day} does not have a corresponding puzzle.");
                     break;
