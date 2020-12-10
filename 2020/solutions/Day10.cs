@@ -108,17 +108,17 @@ namespace adventofcode
 
             return paths[nodes.Last().Number];
         }
-    }
 
-    public class Node
-    {
-        public int Number { get; set; }
-        public List<Node> Children { get; set; }
-
-        public  Node(int num)
+        public class Node
         {
-            Number = num;
-            Children = new List<Node>();
+            public int Number { get; set; }
+            public List<Node> Children { get; set; }
+
+            public  Node(int num)
+            {
+                Number = num;
+                Children = new List<Node>();
+            }
         }
     }
 }
