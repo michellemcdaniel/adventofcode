@@ -22,22 +22,24 @@ namespace adventofcode
             int previous = 0;
 
             List<Node> nodes = new List<Node>();
-            nodes.Add(new Node(0));
+            Node zeroNode = new Node(0);
+            nodes.Add(zeroNode);
 
-            List<int> previousNodes = new List<int>();
-            previousNodes.Add(0);
+            List<Node> previousNodes = new List<Node>();
+            previousNodes.Add(zeroNode);
 
             foreach(var i in input)
             {
-                nodes.Add(new Node(i));
+                Node newNode = new Node(i);
+                nodes.Add(newNode);
 
-                List<int> remove = new List<int>();
+                List<Node> remove = new List<Node>();
 
                 foreach (var n in previousNodes)
                 {
-                    if (i - n <=3)
+                    if (i - n.Number <=3)
                     {
-                        nodes.First(node => node.Number == n).Children.Add(i);
+                        n.Children.Add(newNode);
                     }
                     else
                     {
@@ -46,7 +48,7 @@ namespace adventofcode
                 }
 
                 previousNodes.RemoveAll(n => remove.Contains(n));
-                previousNodes.Add(i);
+                previousNodes.Add(newNode);
 
                 if (i - previous == 1)
                 {
@@ -60,11 +62,12 @@ namespace adventofcode
                 previous = i;
             }
 
-            Console.WriteLine($"Part one: {diffOfOne*(diffOfThree+1)}");
-            Console.WriteLine($"Part two: {WalkTree(nodes.First(), nodes)}");
+            Console.WriteLine($"Part one: {diffOfOne*(diffOfThree)}");
+            Console.WriteLine($"Part two, recursive with cache: {CountPathsRecursive(nodes.First(), nodes)}");
+            Console.WriteLine($"Part two, non-recursive: {CountPathsNonRecursive(nodes)}");
         }
 
-        public static long WalkTree(Node node, List<Node> nodes)
+        public static long CountPathsRecursive(Node node, List<Node> nodes)
         {
             if (!node.Children.Any())
             {
@@ -75,31 +78,47 @@ namespace adventofcode
                 long total = 0;
                 foreach(var child in node.Children)
                 {
-                    if (cache.ContainsKey(child))
+                    if (cache.ContainsKey(child.Number))
                     {
-                        total += cache[child];
+                        total += cache[child.Number];
                     }
                     else
                     {
-                        cache[child] = WalkTree(nodes.First(n => n.Number == child), nodes);
-                        total += cache[child];
+                        cache[child.Number] = CountPathsRecursive(child, nodes);
+                        total += cache[child.Number];
                     }
                 }
 
                 return total;
             }
         }
+
+        public static long CountPathsNonRecursive(List<Node> nodes)
+        {
+            Dictionary<int, long> paths = nodes.ToDictionary(n => n.Number, value => (long) 0);
+            paths[0] = 1;
+
+            foreach(var node in nodes)
+            {
+                foreach (var child in node.Children)
+                {
+                    paths[child.Number] += paths[node.Number];
+                }
+            }
+
+            return paths[nodes.Last().Number];
+        }
     }
 
     public class Node
     {
         public int Number { get; set; }
-        public List<int> Children { get; set; }
+        public List<Node> Children { get; set; }
 
         public  Node(int num)
         {
             Number = num;
-            Children = new List<int>();
+            Children = new List<Node>();
         }
     }
 }
