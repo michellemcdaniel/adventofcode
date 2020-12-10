@@ -45,7 +45,7 @@ namespace adventofcode
                     }
                 }
 
-                previousNodes.Except(remove);
+                previousNodes.RemoveAll(n => remove.Contains(n));
                 previousNodes.Add(i);
 
                 if (i - previous == 1)
