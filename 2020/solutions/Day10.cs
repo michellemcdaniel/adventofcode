@@ -21,8 +21,8 @@ namespace adventofcode
             int[] differences = new int[4];
             int previous = 0;
 
-            HashSet<Node> nodes = new HashSet<Node>();
-            List<Node> previousNodes = new List<Node>();
+            HashSet<Node> nodes = new();
+            List<Node> previousNodes = new();
 
             // Build the graph
             foreach(var i in input)
@@ -30,7 +30,7 @@ namespace adventofcode
                 Node newNode = new Node(i);
                 nodes.Add(newNode);
 
-                List<Node> remove = new List<Node>();
+                List<Node> remove = new();
 
                 foreach (var n in previousNodes)
                 {
@@ -106,7 +106,7 @@ namespace adventofcode
             public  Node(int num)
             {
                 Number = num;
-                Children = new HashSet<Node>();
+                Children = new();
             }
         }
     }
