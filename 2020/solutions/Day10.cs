@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -8,7 +9,7 @@ namespace adventofcode
 {
     class Day10
     {
-        public static Dictionary<int, long> cache = new Dictionary<int, long>();
+        public static Hashtable cache = new Hashtable();
         public static void Execute(string filename)
         {
             List<int> input = File.ReadAllLines(filename).Select(i => int.Parse(i)).ToList();
@@ -20,7 +21,7 @@ namespace adventofcode
             int[] differences = new int[4];
             int previous = 0;
 
-            List<Node> nodes = new List<Node>();
+            HashSet<Node> nodes = new HashSet<Node>();
             List<Node> previousNodes = new List<Node>();
 
             // Build the graph
@@ -66,14 +67,14 @@ namespace adventofcode
                 long total = 0;
                 foreach(var child in node.Children)
                 {
-                    if (cache.ContainsKey(child.Number))
+                    if (cache.ContainsKey(child))
                     {
-                        total += cache[child.Number];
+                        total += (long)cache[child];
                     }
                     else
                     {
-                        cache[child.Number] = CountPathsRecursive(child);
-                        total += cache[child.Number];
+                        cache.Add(child, CountPathsRecursive(child));
+                        total += (long)cache[child];
                     }
                 }
 
@@ -81,7 +82,7 @@ namespace adventofcode
             }
         }
 
-        public static long CountPathsNonRecursive(List<Node> nodes)
+        public static long CountPathsNonRecursive(HashSet<Node> nodes)
         {
             Dictionary<int, long> paths = nodes.ToDictionary(n => n.Number, value => (long) 0);
             paths[0] = 1;
@@ -100,12 +101,12 @@ namespace adventofcode
         public class Node
         {
             public int Number { get; set; }
-            public List<Node> Children { get; set; }
+            public HashSet<Node> Children { get; set; }
 
             public  Node(int num)
             {
                 Number = num;
-                Children = new List<Node>();
+                Children = new HashSet<Node>();
             }
         }
     }
