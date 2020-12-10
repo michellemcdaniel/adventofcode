@@ -13,21 +13,17 @@ namespace adventofcode
         {
             List<int> input = File.ReadAllLines(filename).Select(i => int.Parse(i)).ToList();
 
+            input.Add(0);
             input.Sort();
             input.Add(input.Last()+3);
 
-            int diffOfOne = 0;
-            int diffOfThree = 0;
-
+            int[] differences = new int[4];
             int previous = 0;
 
             List<Node> nodes = new List<Node>();
-            Node zeroNode = new Node(0);
-            nodes.Add(zeroNode);
-
             List<Node> previousNodes = new List<Node>();
-            previousNodes.Add(zeroNode);
 
+            // Build the graph
             foreach(var i in input)
             {
                 Node newNode = new Node(i);
@@ -50,24 +46,16 @@ namespace adventofcode
                 previousNodes.RemoveAll(n => remove.Contains(n));
                 previousNodes.Add(newNode);
 
-                if (i - previous == 1)
-                {
-                    diffOfOne++;
-                }
-                else if (i - previous == 3)
-                {
-                    diffOfThree++;
-                }
-
+                differences[i-previous]++;
                 previous = i;
             }
 
-            Console.WriteLine($"Part one: {diffOfOne*(diffOfThree)}");
-            Console.WriteLine($"Part two, recursive with cache: {CountPathsRecursive(nodes.First(), nodes)}");
+            Console.WriteLine($"Part one: {differences[1]*differences[3]}");
+            Console.WriteLine($"Part two, recursive with cache: {CountPathsRecursive(nodes.First())}");
             Console.WriteLine($"Part two, non-recursive: {CountPathsNonRecursive(nodes)}");
         }
 
-        public static long CountPathsRecursive(Node node, List<Node> nodes)
+        public static long CountPathsRecursive(Node node)
         {
             if (!node.Children.Any())
             {
@@ -84,7 +72,7 @@ namespace adventofcode
                     }
                     else
                     {
-                        cache[child.Number] = CountPathsRecursive(child, nodes);
+                        cache[child.Number] = CountPathsRecursive(child);
                         total += cache[child.Number];
                     }
                 }
