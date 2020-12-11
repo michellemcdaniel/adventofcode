@@ -71,9 +71,9 @@ namespace adventofcode
         public static int SeatsOccupiedAroundCurrent(int i, int j, int maxMultiplier, List<string> seats)
         {
             int count = 0;
-            for (int x = -1; x < 2; x++)
+            foreach (int x in new int[] {-1, 0, 1} )
             {
-                for (int y = -1; y < 2; y++)
+                foreach (int y in new int[] {-1, 0, 1} )
                 {
                     if (x == 0 && y == 0)
                     {
