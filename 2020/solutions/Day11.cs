@@ -22,9 +22,10 @@ namespace adventofcode
                 List<string> previousLayout = new List<string>(input);
                 List<string> currentLayout = new List<string>(input);
 
-                List<string> difference = new List<string>(input);
-                while(difference.Any())
+                bool changed = true;
+                while(changed)
                 {
+                    changed = false;
                     previousLayout = new List<string>(currentLayout);
                     for (int i = 0; i < currentLayout.Count(); i++)
                     {
@@ -39,16 +40,16 @@ namespace adventofcode
 
                             if (countOccupied >= kvp.Value && currentLayout[i][j] == '#')
                             {
-                                currentLayout[i] = currentLayout[i] = GetReplacementString(currentLayout[i], j, 'L');;
+                                currentLayout[i] = currentLayout[i] = GetReplacementString(currentLayout[i], j, 'L');
+                                changed = true;
                             }
                             else if (currentLayout[i][j] == 'L' && countOccupied == 0)
                             {
                                 currentLayout[i] = GetReplacementString(currentLayout[i], j, '#');
+                                changed = true;
                             }
                         }
                     }
-                    
-                    difference = previousLayout.Except(currentLayout).ToList();
                 }
 
                 int count = 0;
