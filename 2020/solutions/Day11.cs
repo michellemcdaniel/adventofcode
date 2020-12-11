@@ -102,21 +102,6 @@ namespace adventofcode
             return new string(newLine);
         }
 
-        public static int SeatOccupied(int i, int j, List<string> seats)
-        {
-            if (i >= seats.Count() || i < 0 || j >= seats[i].Length || j < 0 || seats[i][j] == 'L')
-            {
-                return -1;
-            }
-
-            else if (seats[i][j] == '#')
-            {
-                return 1;
-            }
-
-            return 0;
-        }
-
         public static int SeatsOccupiedAroundCurrent(int i, int j, bool useMultiplier, List<string> seats)
         {
             int count = 0;
