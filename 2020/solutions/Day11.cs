@@ -13,86 +13,52 @@ namespace adventofcode
         {
             List<string> input = File.ReadAllLines(filename).ToList();
 
-            List<string> previousLayout = new List<string>(input);
-            List<string> currentLayout = new List<string>(input);
+            Dictionary<int, int> parts = new Dictionary<int, int>();
+            parts.Add(1,4);
+            parts.Add(Math.Min(input.Count(), input.First().Length),5);
 
-            List<string> difference = new List<string>(input);
-
-            while(difference.Any())
+            foreach(var kvp in parts)
             {
-                previousLayout = new List<string>(currentLayout);
-                for (int i = 0; i < currentLayout.Count(); i++)
+                List<string> previousLayout = new List<string>(input);
+                List<string> currentLayout = new List<string>(input);
+
+                List<string> difference = new List<string>(input);
+                while(difference.Any())
                 {
-                    for (int j = 0; j < currentLayout[i].Length; j++)
+                    previousLayout = new List<string>(currentLayout);
+                    for (int i = 0; i < currentLayout.Count(); i++)
                     {
-                        if (currentLayout[i][j] == '.')
+                        for (int j = 0; j < currentLayout[i].Length; j++)
                         {
-                            continue;
-                        }
+                            if (currentLayout[i][j] == '.')
+                            {
+                                continue;
+                            }
 
-                        int countOccupied = SeatsOccupiedAroundCurrent(i, j, false, previousLayout);
+                            int countOccupied = SeatsOccupiedAroundCurrent(i, j, kvp.Key, previousLayout);
 
-                        if (countOccupied >= 4 && currentLayout[i][j] == '#')
-                        {
-                            currentLayout[i] = currentLayout[i] = GetReplacementString(currentLayout[i], j, 'L');;
-                        }
-                        else if (currentLayout[i][j] == 'L' && countOccupied == 0)
-                        {
-                            currentLayout[i] = GetReplacementString(currentLayout[i], j, '#');
+                            if (countOccupied >= kvp.Value && currentLayout[i][j] == '#')
+                            {
+                                currentLayout[i] = currentLayout[i] = GetReplacementString(currentLayout[i], j, 'L');;
+                            }
+                            else if (currentLayout[i][j] == 'L' && countOccupied == 0)
+                            {
+                                currentLayout[i] = GetReplacementString(currentLayout[i], j, '#');
+                            }
                         }
                     }
+                    
+                    difference = previousLayout.Except(currentLayout).ToList();
                 }
-                
-                difference = previousLayout.Except(currentLayout).ToList();
-            }
 
-            int count = 0;
-            foreach(string line in currentLayout)
-            {
-                count += line.Where(c => c == '#').Count();
-            }
-
-            Console.WriteLine($"Part one: {count}");
-
-            previousLayout = new List<string>(input);
-            currentLayout = new List<string>(input);
-
-            difference = new List<string>(input);
-
-            while(difference.Any())
-            {
-                previousLayout = new List<string>(currentLayout);
-                for (int i = 0; i < currentLayout.Count(); i++)
+                int count = 0;
+                foreach(string line in currentLayout)
                 {
-                    for (int j = 0; j < currentLayout[i].Length; j++)
-                    {
-                        if (currentLayout[i][j] == '.')
-                        {
-                            continue;
-                        }
-
-                        int countOccupied = SeatsOccupiedAroundCurrent(i, j, true, previousLayout);
-
-                        if (countOccupied >= 5 && currentLayout[i][j] == '#')
-                        {
-                            currentLayout[i] = currentLayout[i] = GetReplacementString(currentLayout[i], j, 'L');;
-                        }
-                        else if (currentLayout[i][j] == 'L' && countOccupied == 0)
-                        {
-                            currentLayout[i] = GetReplacementString(currentLayout[i], j, '#');
-                        }
-                    }
+                    count += line.Where(c => c == '#').Count();
                 }
-                difference = previousLayout.Except(currentLayout).ToList();
-            }
 
-            count = 0;
-            foreach(string line in currentLayout)
-            {
-                count += line.Where(c => c == '#').Count();
-            }           
-            
-            Console.WriteLine($"Part two: {count}");
+                Console.WriteLine($"Count: {count}");
+            }
         }
 
         public static string GetReplacementString(string line, int index, char replacement)
@@ -102,7 +68,7 @@ namespace adventofcode
             return new string(newLine);
         }
 
-        public static int SeatsOccupiedAroundCurrent(int i, int j, bool useMultiplier, List<string> seats)
+        public static int SeatsOccupiedAroundCurrent(int i, int j, int maxMultiplier, List<string> seats)
         {
             int count = 0;
             for (int x = -1; x < 2; x++)
@@ -116,7 +82,7 @@ namespace adventofcode
 
                     int multiplier = 1;
 
-                    while (true)
+                    while (multiplier <= maxMultiplier)
                     {
                         int xIndex = i + x * multiplier;
                         int yIndex = j + y * multiplier;
@@ -131,14 +97,7 @@ namespace adventofcode
                             break;
                         }
                         
-                        if (!useMultiplier)
-                        {
-                            break;
-                        }
-                        else
-                        {
-                            multiplier++;
-                        }
+                        multiplier++;
                     }
                 }
             }
