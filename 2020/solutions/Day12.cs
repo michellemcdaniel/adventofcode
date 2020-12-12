@@ -9,12 +9,12 @@ namespace adventofcode
 {
     class Day12
     {
-        public static List<char> directions = new List<char>(){'E','S','W','N'};
         public static void Execute(string filename)
         {
             List<string> input = File.ReadAllLines(filename).ToList();
 
             int direction = 0;
+            List<char> directions = new List<char>(){'E','S','W','N'};
 
             int x = 0;
             int y = 0;
@@ -32,14 +32,14 @@ namespace adventofcode
                 {
                     (x,y) = MoveDirection(direction, x, y, number);
                 }
-                else if (letter == 'E' || letter == 'S' || letter == 'W' || letter == 'N')
-                {
-                    (x,y) = MoveDirection(directions.IndexOf(letter), x, y, number);
-                }
                 else if (letter == 'R' || letter == 'L')
                 {
                     int adjusted = letter == 'R' ? number : 360-number;
                     direction = (direction+adjusted/90)%4;
+                }
+                else
+                {
+                    (x,y) = MoveDirection(directions.IndexOf(letter), x, y, number);
                 }
             }
 
@@ -69,7 +69,7 @@ namespace adventofcode
                         waypointY = -swap;
                     }
                 }
-                else if (letter == 'E' || letter == 'S' || letter == 'W' || letter == 'N')
+                else
                 {
                     (waypointX, waypointY) = MoveDirection(directions.IndexOf(letter), waypointX, waypointY, number);
                 }
@@ -80,7 +80,7 @@ namespace adventofcode
 
         public static (int, int) MoveDirection(int direction, int x, int y, int number)
         {
-            if (directions[direction] == 'W' || directions[direction] == 'S')
+            if (direction == 1 || direction == 2)
             {
                 number = -number;
             }
