@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace adventofcode
 {
@@ -15,7 +16,7 @@ namespace adventofcode
 
             Dictionary<int, int> parts = new Dictionary<int, int>();
             parts.Add(1,4);
-            parts.Add(Math.Min(input.Count(), input.First().Length),5);
+            //parts.Add(Math.Min(input.Count(), input.First().Length),5);
 
             foreach(var kvp in parts)
             {
@@ -25,6 +26,14 @@ namespace adventofcode
                 bool changed = true;
                 while(changed)
                 {
+                    Console.Clear();
+                    foreach(var line in currentLayout)
+                    {
+                        Console.WriteLine(line);
+                    }
+
+                    Thread.Sleep(100);
+                    
                     changed = false;
                     previousLayout = new List<string>(currentLayout);
                     for (int i = 0; i < currentLayout.Count(); i++)
