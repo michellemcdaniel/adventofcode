@@ -35,7 +35,7 @@ namespace adventofcode
                     else if (letter == 'R' || letter == 'L')
                     {
                         int adjusted = letter == 'R' ? number : 360-number;
-                        for(int rotation = adjusted/90; rotation > 0; rotation--)
+                        for(int rotation = adjusted; rotation > 0; rotation-=90)
                         {
                             int swap = waypointX;
                             waypointX = waypointY;
