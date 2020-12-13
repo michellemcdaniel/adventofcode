@@ -15,40 +15,31 @@ namespace adventofcode
             
             int timestamp = int.Parse(input.First());
             List<string> buses = input.Last().Split(",").ToList();
-
             Dictionary<int,long> map = new Dictionary<int,long>();
-            int index = 0;
 
             for (int i = 0; i < buses.Count(); i++)
             {
                 if (buses[i] != "x")
                 {
                     map.Add(i, long.Parse(buses[i]));
-                    index++;
                 }
             }
 
-            int closestBus = 0;
-            int time = int.MaxValue;
+            long closestBus = 0;
+            long time = long.MaxValue;
             
-            foreach (string busString in buses)
+            foreach (var kvp in map)
             {
                 int multiplier = 1;
 
-                if (busString == "x")
-                {
-                    continue;
-                }
-                int bus = int.Parse(busString);
-
                 while (true)
                 {
-                    if (bus*multiplier > timestamp)
+                    if (kvp.Value*multiplier > timestamp)
                     {
-                        if (bus*multiplier - timestamp < time)
+                        if (kvp.Value*multiplier - timestamp < time)
                         {
-                            closestBus = bus;
-                            time = bus*multiplier - timestamp;
+                            closestBus = kvp.Value;
+                            time = kvp.Value*multiplier - timestamp;
                         }
                         break;
                     }
