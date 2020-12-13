@@ -47,7 +47,7 @@ namespace adventofcode
                 }
             }
 
-            Console.WriteLine($"Closest bus: {closestBus}; time {time}; {closestBus*time}");
+            Console.WriteLine($"Closest bus: {closestBus}; time difference: {time}; {closestBus*time}");
 
             long meetMultiplier = map.First().Value;
             int mapIndex = 1;
