@@ -16,14 +16,14 @@ namespace adventofcode
             int timestamp = int.Parse(input.First());
             List<string> buses = input.Last().Split(",").ToList();
 
-            Dictionary<int, (int,long)> map = new Dictionary<int, (int,long)>();
+            Dictionary<int,long> map = new Dictionary<int,long>();
             int index = 0;
 
             for (int i = 0; i < buses.Count(); i++)
             {
                 if (buses[i] != "x")
                 {
-                    map.Add(index, (i, long.Parse(buses[i])));
+                    map.Add(i, long.Parse(buses[i]));
                     index++;
                 }
             }
@@ -58,33 +58,20 @@ namespace adventofcode
 
             Console.WriteLine($"Closest bus: {closestBus}; time {time}; {closestBus*time}");
 
-            (_, long meetMultiplier) = map.First().Value;
+            long meetMultiplier = map.First().Value;
             int mapIndex = 1;
-            bool found = false;
             long meetTime = 0;
 
-            while (!found)
+            while (mapIndex < map.Count())
             {
-                found = true;
                 meetTime += meetMultiplier;
                 
-                foreach (var kvp in map)
+                (int i, long val) = map.ElementAt(mapIndex);
+
+                if ((meetTime+i)%val == 0)
                 {
-                    (int i, long val) = kvp.Value;
-                    if (kvp.Key < mapIndex)
-                    {
-                        continue;
-                    }
-                    if ((meetTime+i)%val == 0)
-                    {
-                        meetMultiplier*=val;
-                        mapIndex++;
-                    }
-                    else
-                    {
-                        found = false;
-                        break;
-                    }
+                    meetMultiplier*=val;
+                    mapIndex++;
                 }
             }
 
