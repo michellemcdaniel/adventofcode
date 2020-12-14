@@ -17,37 +17,32 @@ namespace adventofcode
             Dictionary<long, long> mem = new Dictionary<long, long>();
             char[] currentMask = new char[0];
             
+            string maskPattern = @"^mask = (?<mask>.*)";
+            string memPattern = @"^mem\[(?<index>\d+)\] = (?<value>\d+)$";
+
             foreach(var line in input)
             {
-                if (line.StartsWith("mask"))
+                if (Regex.Match(line, maskPattern).Success)
                 {
-                    // mask stuff
-                    string pattern = @"^mask = (?<mask>.*)";
-                    Match m = Regex.Match(line, pattern);
+                    Match m = Regex.Match(line, maskPattern);
                     currentMask = m.Groups["mask"].Value.ToCharArray();
                 }
                 else
                 {
-                    string[] match = line.Split(" = ");
-                    string memLocation = match[0].Replace("mem[", "").Replace("]", "");
+                    Match m = Regex.Match(line, memPattern);
+                    string memLocation = m.Groups["index"].Value;
 
-                    long value = long.Parse(match[1]);
-                    string valueString = Convert.ToString(value, 2);
-                    char[] valueChar = valueString.PadLeft(36, '0').ToCharArray();
+                    char[] valueChar = Convert.ToString(long.Parse(m.Groups["value"].Value), 2).PadLeft(36, '0').ToCharArray();
 
                     for (int i = 0; i < currentMask.Length; i++)
                     {
-                        if (currentMask[i] == '0')
+                        if (currentMask[i] != 'X')
                         {
-                            valueChar[i] = '0';
-                        }
-                        else if (currentMask[i] == '1')
-                        {
-                            valueChar[i] = '1';
+                            valueChar[i] = currentMask[i];
                         }
                     }
 
-                    value = Convert.ToInt64(new string(valueChar), 2);
+                    long value = Convert.ToInt64(new string(valueChar), 2);
 
                     if (mem.ContainsKey(long.Parse(memLocation)))
                     {
@@ -60,44 +55,28 @@ namespace adventofcode
                 }
             }
 
-            long partOne = 0;
+            Console.WriteLine($"Part One: {mem.Values.Sum()}");
 
-            foreach(var value in mem)
-            {
-                partOne += value.Value;
-            }
-
-            mem = new Dictionary<long, long>();
-
+            mem.Clear();
             foreach(var line in input)
             {
-                if (line.StartsWith("mask"))
+                if (Regex.Match(line, maskPattern).Success)
                 {
-                    // mask stuff
-                    string pattern = @"^mask = (?<mask>.*)";
-                    Match m = Regex.Match(line, pattern);
+                    Match m = Regex.Match(line, maskPattern);
                     currentMask = m.Groups["mask"].Value.ToCharArray();
                 }
                 else
                 {
-                    string[] match = line.Split(" = ");
-                    string memLocation = match[0].Replace("mem[", "").Replace("]", "");
+                    Match m = Regex.Match(line, memPattern);
 
-                    long memLocLong = long.Parse(memLocation);
-
-                    long value = long.Parse(match[1]);
-                    string memString = Convert.ToString(memLocLong, 2);
-                    char[] memChar = memString.PadLeft(36, '0').ToCharArray();
+                    long value = long.Parse(m.Groups["value"].Value);
+                    char[] memChar = Convert.ToString(long.Parse(m.Groups["index"].Value), 2).PadLeft(36, '0').ToCharArray();
 
                     for (int i = 0; i < currentMask.Length; i++)
                     {
-                        if (currentMask[i] == '1')
+                        if (currentMask[i] != '0')
                         {
-                            memChar[i] = '1';
-                        }
-                        else if (currentMask[i] == 'X')
-                        {
-                            memChar[i] = 'X';
+                            memChar[i] = currentMask[i];
                         }
                     }
 
@@ -105,29 +84,12 @@ namespace adventofcode
 
                     foreach(var address in allAddresses)
                     {
-                        long memAddress = Convert.ToInt64(address, 2);
-
-                        if (mem.ContainsKey(memAddress))
-                        {
-                            mem[memAddress] = value;
-                        }
-                        else
-                        {
-                            mem.Add(memAddress, value);
-                        }
-
+                        mem[Convert.ToInt64(address, 2)] = value;
                     }
                 }
-            }
-
-            long partTwo = 0;
-            foreach(var value in mem)
-            {
-                partTwo += value.Value;
-            }
+            }    
             
-            Console.WriteLine($"Part One: {partOne}");
-            Console.WriteLine($"Part Two: {partTwo}");
+            Console.WriteLine($"Part Two: {mem.Values.Sum()}");
         }
 
         public static List<string> GetAllMemAddresses(string prior, char[] mem)
