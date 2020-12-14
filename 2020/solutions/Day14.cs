@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace adventofcode
 {
@@ -17,22 +16,19 @@ namespace adventofcode
             Dictionary<long, long> mem = new Dictionary<long, long>();
             char[] currentMask = new char[0];
             
-            string maskPattern = @"^mask = (?<mask>.*)";
-            string memPattern = @"^mem\[(?<index>\d+)\] = (?<value>\d+)$";
+            string maskPattern = @"^mask = (.*)";
+            string memPattern = @"^mem\[(\d+)\] = (\d+)$";
 
             foreach(var line in input)
             {
-                if (Regex.Match(line, maskPattern).Success)
+                if (RegexHelper.Match(line, maskPattern, out string mask))
                 {
-                    Match m = Regex.Match(line, maskPattern);
-                    currentMask = m.Groups["mask"].Value.ToCharArray();
+                    currentMask = mask.ToCharArray();
                 }
                 else
                 {
-                    Match m = Regex.Match(line, memPattern);
-                    string memLocation = m.Groups["index"].Value;
-
-                    char[] valueChar = Convert.ToString(long.Parse(m.Groups["value"].Value), 2).PadLeft(36, '0').ToCharArray();
+                    RegexHelper.Match(line, memPattern, out string memLocation, out string originalValue);
+                    char[] valueChar = Convert.ToString(long.Parse(originalValue), 2).PadLeft(36, '0').ToCharArray();
 
                     for (int i = 0; i < currentMask.Length; i++)
                     {
@@ -60,17 +56,14 @@ namespace adventofcode
             mem.Clear();
             foreach(var line in input)
             {
-                if (Regex.Match(line, maskPattern).Success)
+                if (RegexHelper.Match(line, maskPattern, out string mask))
                 {
-                    Match m = Regex.Match(line, maskPattern);
-                    currentMask = m.Groups["mask"].Value.ToCharArray();
+                    currentMask = mask.ToCharArray();
                 }
                 else
                 {
-                    Match m = Regex.Match(line, memPattern);
-
-                    long value = long.Parse(m.Groups["value"].Value);
-                    char[] memChar = Convert.ToString(long.Parse(m.Groups["index"].Value), 2).PadLeft(36, '0').ToCharArray();
+                    RegexHelper.Match(line, memPattern, out string index, out long value);
+                    char[] memChar = Convert.ToString(long.Parse(index), 2).PadLeft(36, '0').ToCharArray();
 
                     for (int i = 0; i < currentMask.Length; i++)
                     {

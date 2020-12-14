@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace adventofcode
 {
@@ -14,25 +13,24 @@ namespace adventofcode
             
             List<Bag> bags = new List<Bag>();
 
-            string pattern = @"^(?<color>.*) bags contain (?<contents>.*)\.$";
+            string pattern = @"^(.*) bags contain (.*)\.$";
             foreach(string rule in input)
             {
-                Match match = Regex.Match(rule, pattern);
+                bool success = RegexHelper.Match(rule, pattern, out string color, out string contentString);
 
-                if (match.Success)
+                if (success)
                 {
-                    string color = match.Groups["color"].Value;
-                    List<string> contents = match.Groups["contents"].Value.Split(", ").ToList();
+                    List<string> contents = contentString.Split(", ").ToList();
 
                     Dictionary<string, int> newContents = new Dictionary<string, int>();
 
                     foreach (string content in contents)
                     {
-                        string contentPattern = @"^(?<count>\d+) (?<content>.*) bags?$";
-                        Match contentMatch = Regex.Match(content, contentPattern);
-                        if (contentMatch.Success)
+                        string contentPattern = @"^(\d+) (.*) bags?$";
+                        bool contentSuccess = RegexHelper.Match(content, contentPattern, out int count, out string contentColor);
+                        if (contentSuccess)
                         {
-                            newContents.Add(contentMatch.Groups["content"].Value.Trim(), int.Parse(contentMatch.Groups["count"].Value));
+                            newContents.Add(contentColor.Trim(), count);
                         }
                     }
 

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace adventofcode
 {
@@ -38,32 +37,32 @@ namespace adventofcode
                 
                 foreach(string entry in data)
                 {
-                    string[] pair = entry.Split(":");
-                    switch (pair[0])
+                    RegexHelper.Match(entry, @"^(.*):(.*)$", out string field, out string value);
+                    switch (field)
                     {
                         case "byr":
-                            passport.BirthYear = pair[1];
+                            passport.BirthYear = value;
                             break;
                         case "iyr":
-                            passport.IssueYear = pair[1];
+                            passport.IssueYear = value;
                             break;
                         case "eyr":
-                            passport.ExpirationYear = pair[1];
+                            passport.ExpirationYear = value;
                             break;
                         case "hgt":
-                            passport.Height = pair[1];
+                            passport.Height = value;
                             break;
                         case "hcl":
-                            passport.HairColor = pair[1];
+                            passport.HairColor = value;
                             break;
                         case "ecl":
-                            passport.EyeColor = pair[1];
+                            passport.EyeColor = value;
                             break;
                         case "pid":
-                            passport.PassportId = pair[1];
+                            passport.PassportId = value;
                             break;
                         case "cid":
-                            passport.CountryId = pair[1];
+                            passport.CountryId = value;
                             break;
                         default:
                             break;
@@ -115,16 +114,14 @@ namespace adventofcode
 
             public bool ValidateHeight()
             {
-                string pattern = "(?<height>[0-9]+)(?<unit>in|cm)";
-                Match match = Regex.Match(Height, pattern);
-                if (match.Success)
+                bool success = RegexHelper.Match(Height, @"(\d+)(in|cm)", out int height, out string units);
+                if (success)
                 {
-                    int height = Int32.Parse(match.Groups["height"].Value);
-                    if (match.Groups["unit"].Value == "in")
+                    if (units == "in")
                     {
                         return height >= 59 && height <= 76;
                     }
-                    else if (match.Groups["unit"].Value == "cm")
+                    else if (units == "cm")
                     {
                         return height >= 150 && height <= 193;
                     }
@@ -138,17 +135,17 @@ namespace adventofcode
             
             public bool ValidateHairColor()
             {
-                return Regex.Match(HairColor, "^#[0-9a-f]{6}$").Success;
+                return RegexHelper.Match(HairColor, "^#[0-9a-f]{6}$");
             }
 
             public bool ValidateEyeColor()
             {
-                return Regex.Match(EyeColor, "^(amb|blu|brn|gry|grn|hzl|oth)$").Success;
+                return RegexHelper.Match(EyeColor, "^(amb|blu|brn|gry|grn|hzl|oth)$", out string color);
             }
 
             public bool ValidatePassportId()
             {
-                return Regex.Match(PassportId, "^[0-9]{9}$").Success;
+                return RegexHelper.Match(PassportId, "^[0-9]{9}$");
             }
 
             public bool ValidatePassport(bool validateContents)

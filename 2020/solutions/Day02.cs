@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace adventofcode
 {
@@ -15,19 +14,13 @@ namespace adventofcode
             int problemOnePasswords = 0;
             int problemTwoPasswords = 0;
 
-            string pattern = @"^(?<min>\d+)-(?<max>\d+) (?<letter>[a-z]): (?<password>[a-z]+)$";
+            string pattern = @"^(\d+)-(\d+) ([a-z]): ([a-z]+)$";
 
             foreach (var input in inputPasswords)
             {
-                Match match = Regex.Match(input, pattern);
+                RegexHelper.Match(input, pattern, out int min, out int max, out char letter, out string password);
 
-                string password = match.Groups["password"].Value;
-                char letter = match.Groups["letter"].Value[0];
-
-                int min = Int32.Parse(match.Groups["min"].Value);
-                int max = Int32.Parse(match.Groups["max"].Value);
-
-                int countRequired = Regex.Matches(password, letter.ToString()).Count;
+                int countRequired = RegexHelper.Matches(password, letter.ToString());
 
                 if (countRequired >= min && countRequired <= max)
                 {
