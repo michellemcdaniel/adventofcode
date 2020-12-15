@@ -15,13 +15,13 @@ namespace adventofcode
 
             Dictionary<long, long> numbers = new Dictionary<long, long>();
 
-            long previous = 0;
-            long lastTime = 0;
+            long previousValue = 0;
+            long previousIndex = 0;
 
             void RunRule(long number, long index)
             {
-                previous = number;
-                numbers.TryGetValue(number, out lastTime);
+                previousValue = number;
+                numbers.TryGetValue(number, out previousIndex);
                 numbers[number] = index;
             }
 
@@ -35,22 +35,22 @@ namespace adventofcode
 
             for (long i = inputCount; i <= 30000000; i++)
             {
-                if (lastTime == 0)
+                if (previousIndex == 0)
                 {
                     RunRule(0, i);
                 }
                 else
                 {
-                    RunRule(numbers[previous] - lastTime, i);
+                    RunRule(numbers[previousValue] - previousIndex, i);
                 }
 
                 if (i == 2020)
                 {
-                    Console.WriteLine($"Part One: {previous}");
+                    Console.WriteLine($"Part One: {previousValue}");
                 }
             }
 
-            Console.WriteLine($"Part Two: {previous}");
+            Console.WriteLine($"Part Two: {previousValue}");
         }
     }
 }
