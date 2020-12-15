@@ -25,15 +25,15 @@ namespace adventofcode
                 numbers[number] = index;
             }
 
-            long inputCount = 1;
+            long i = 1;
 
-            foreach (var i in input)
+            foreach (var number in input)
             {
-                RunRule(i, inputCount);
-                inputCount++;
+                RunRule(number, i);
+                i++;
             }
 
-            for (long i = inputCount; i <= 30000000; i++)
+            for (; i <= 30000000; i++)
             {
                 if (previousIndex == 0)
                 {
