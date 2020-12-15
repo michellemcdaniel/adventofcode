@@ -73,11 +73,11 @@ namespace adventofcode
                         }
                     }
 
-                    List<string> allAddresses = GetAllMemAddresses("", memChar);
+                    List<long> allAddresses = GetAllMemAddresses("", memChar).Select(a => Convert.ToInt64(a, 2)).ToList();
 
                     foreach(var address in allAddresses)
                     {
-                        mem[Convert.ToInt64(address, 2)] = value;
+                        mem[address] = value;
                     }
                 }
             }    
