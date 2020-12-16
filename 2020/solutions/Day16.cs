@@ -16,12 +16,12 @@ namespace adventofcode
             Dictionary<string, (string, string)> rules = new();
             int nextInput = 0;
             
+            // Rules
             for (int i = 0; i < input.Count; i++)
             {
                 nextInput = i+1;
                 if (string.IsNullOrEmpty(input[i]))
                 {
-                    // Last of rules
                     break;
                 }
 
@@ -30,20 +30,17 @@ namespace adventofcode
             }
 
             nextInput++;
+            // My ticket
             int[] myTicket = input[nextInput].Split(",").Select(n => int.Parse(n)).ToArray();
 
             List<int[]> allTickets = new ();
-
             List<int> badValue = new();
 
-            Dictionary<int, Dictionary<string, int>> ticketOrder = new();
-
+            // Example tickets
             for(int i = nextInput+3; i < input.Count(); i++)
             {
                 int[] ticket = input[i].Split(",").Select(n => int.Parse(n)).ToArray();
-
                 bool goodTicket = true;
-                int index = 0;
 
                 foreach(int field in ticket)
                 {
@@ -54,22 +51,18 @@ namespace adventofcode
                         (string rangeOne, string rangeTwo) = rule.Value;
 
                         RegexHelper.Match(rangeOne, @"(\d+)-(\d+)", out int low, out int high);
+                        RegexHelper.Match(rangeTwo, @"(\d+)-(\d+)", out int low2, out int high2);
 
-                        if (field <= high && field >= low)
-                        {
-                            good = true;
-                        }
-                        RegexHelper.Match(rangeTwo, @"(\d+)-(\d+)", out low, out high);
-                        if (field <= high && field >= low)
+                        if (((field <= high && field >= low) || (field <= high2 && field >= low2)))
                         {
                             good = true;
                         }
                     }
-                    index++;
                     if (!good)
                     {
                         goodTicket = false;
                         badValue.Add(field);
+                        break;
                     }
                 }
                 if (goodTicket)
@@ -78,34 +71,24 @@ namespace adventofcode
                 }
             }
 
+            Dictionary<int, List<string>> newTicketOrder = new();
+            Enumerable.Range(0,rules.Count()).ToList().ForEach(n => newTicketOrder.Add(n, rules.Keys.ToList()));
+
             foreach(var ticket in allTickets)
             {
                 int index = 0;
                 foreach(int field in ticket)
                 {
-                    if (!ticketOrder.ContainsKey(index))
-                    {
-                        ticketOrder[index] = new();
-                    }
-                    
                     foreach(var rule in rules)
                     {
-                        if (!ticketOrder[index].ContainsKey(rule.Key))
-                        {
-                            ticketOrder[index].Add(rule.Key, 0);
-                        }
                         (string rangeOne, string rangeTwo) = rule.Value;
 
                         RegexHelper.Match(rangeOne, @"(\d+)-(\d+)", out int low, out int high);
+                        RegexHelper.Match(rangeTwo, @"(\d+)-(\d+)", out int low2, out int high2);
 
-                        if (field <= high && field >= low)
+                        if (!((field <= high && field >= low) || (field <= high2 && field >= low2)))
                         {
-                            ticketOrder[index][rule.Key]++;
-                        }
-                        RegexHelper.Match(rangeTwo, @"(\d+)-(\d+)", out low, out high);
-                        if (field <= high && field >= low)
-                        {
-                            ticketOrder[index][rule.Key]++;
+                            newTicketOrder[index].Remove(rule.Key);
                         }
                     }
                     index++;
@@ -114,40 +97,24 @@ namespace adventofcode
 
             Console.WriteLine($"Part one: {badValue.Sum()}");
 
-            List<string> order = new();
+            HashSet<string> order = new();
             long total = 1;
             while(order.Count < rules.Count())
             {
-                int index = 0;
-                foreach(var kvp in ticketOrder)
+                foreach(var kvp in newTicketOrder)
                 {
-                    foreach(var rule in rules)
+                    if (kvp.Value.Count == 1)
                     {
-                        if (order.Contains(rule.Key))
+                        order.Add(kvp.Value.First());
+                        if (kvp.Value.First().StartsWith("departure"))
                         {
-                            kvp.Value.Remove(rule.Key);
-                            continue;
-                        }
-                        else if (kvp.Value.ContainsKey(rule.Key))
-                        {
-                            int count = kvp.Value[rule.Key];
-                            if (count < allTickets.Count())
-                            {
-                                kvp.Value.Remove(rule.Key);
-                            }
+                            total*= myTicket[kvp.Key];
                         }
                     }
-
-                    if (kvp.Value.Count() == 1)
+                    foreach (string rule in order)
                     {
-                        order.Add(kvp.Value.First().Key);
-                        if (kvp.Value.First().Key.StartsWith("departure"))
-                        {
-                            total*=myTicket[index];
-                        }
+                        kvp.Value.Remove(rule);
                     }
-
-                    index++;
                 }
             }
 
