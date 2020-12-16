@@ -13,7 +13,7 @@ namespace adventofcode
         {
             List<string> input = File.ReadAllLines(filename).ToList();
 
-            Dictionary<string, (string, string)> rules = new();
+            Dictionary<string, List<Range>> rules = new();
             int nextInput = 0;
             
             // Rules
@@ -25,8 +25,8 @@ namespace adventofcode
                     break;
                 }
 
-                RegexHelper.Match(input[i], @"(.*): (.*) or (.*)$", out string field, out string rangeOne, out string rangeTwo);
-                rules.Add(field, (rangeOne, rangeTwo));
+                RegexHelper.Match(input[i], @"(.*): (\d+)-(\d+) or (\d+)-(\d+)$", out string field, out int rangeOneLow, out int rangeOneHigh, out int rangeTwoLow, out int rangeTwoHigh);
+                rules.Add(field, new List<Range>() { new Range(rangeOneLow, rangeOneHigh), new Range(rangeTwoLow, rangeTwoHigh)});
             }
 
             nextInput++;
@@ -48,14 +48,18 @@ namespace adventofcode
                     
                     foreach(var rule in rules)
                     {
-                        (string rangeOne, string rangeTwo) = rule.Value;
-
-                        RegexHelper.Match(rangeOne, @"(\d+)-(\d+)", out int low, out int high);
-                        RegexHelper.Match(rangeTwo, @"(\d+)-(\d+)", out int low2, out int high2);
-
-                        if (((field <= high && field >= low) || (field <= high2 && field >= low2)))
+                        foreach (var range in rule.Value)
                         {
-                            good = true;
+                            if (field <= range.End.Value && field >= range.Start.Value)
+                            {
+                                good = true;
+                                break;
+                            }
+                        }
+
+                        if (good)
+                        {
+                            break;
                         }
                     }
                     if (!good)
@@ -81,12 +85,16 @@ namespace adventofcode
                 {
                     foreach(var rule in rules)
                     {
-                        (string rangeOne, string rangeTwo) = rule.Value;
-
-                        RegexHelper.Match(rangeOne, @"(\d+)-(\d+)", out int low, out int high);
-                        RegexHelper.Match(rangeTwo, @"(\d+)-(\d+)", out int low2, out int high2);
-
-                        if (!((field <= high && field >= low) || (field <= high2 && field >= low2)))
+                        bool good = false;
+                        foreach (var range in rule.Value)
+                        {
+                            if (field <= range.End.Value && field >= range.Start.Value)
+                            {
+                                good = true;
+                                break;
+                            }
+                        }
+                        if (!good)
                         {
                             newTicketOrder[index].Remove(rule.Key);
                         }
