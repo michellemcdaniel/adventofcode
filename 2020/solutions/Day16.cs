@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -16,7 +14,6 @@ namespace adventofcode
             Dictionary<string, List<Range>> rules = new();
             int nextInput = 0;
             
-            // Rules
             for (int i = 0; i < input.Count; i++)
             {
                 nextInput = i+1;
@@ -30,13 +27,11 @@ namespace adventofcode
             }
 
             nextInput++;
-            // My ticket
             int[] myTicket = input[nextInput].Split(",").Select(n => int.Parse(n)).ToArray();
 
             List<int[]> allTickets = new ();
             List<int> badValue = new();
 
-            // Example tickets
             for(int i = nextInput+3; i < input.Count(); i++)
             {
                 int[] ticket = input[i].Split(",").Select(n => int.Parse(n)).ToArray();
