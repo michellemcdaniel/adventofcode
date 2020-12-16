@@ -75,6 +75,8 @@ namespace adventofcode
                 }
             }
 
+            Console.WriteLine($"Part one: {badValue.Sum()}");
+
             Dictionary<int, List<string>> newTicketOrder = new();
             Enumerable.Range(0,rules.Count()).ToList().ForEach(n => newTicketOrder.Add(n, rules.Keys.ToList()));
 
@@ -102,8 +104,6 @@ namespace adventofcode
                     index++;
                 }
             }
-
-            Console.WriteLine($"Part one: {badValue.Sum()}");
 
             HashSet<string> order = new();
             long total = 1;
