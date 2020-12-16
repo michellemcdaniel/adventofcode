@@ -114,15 +114,16 @@ namespace adventofcode
 
             Console.WriteLine($"Part one: {badValue.Sum()}");
 
-            Dictionary<int, string> order = new();
+            List<string> order = new();
+            long total = 1;
             while(order.Count < rules.Count())
             {
-                int index2 = 0;
+                int index = 0;
                 foreach(var kvp in ticketOrder)
                 {
                     foreach(var rule in rules)
                     {
-                        if (order.ContainsValue(rule.Key))
+                        if (order.Contains(rule.Key))
                         {
                             kvp.Value.Remove(rule.Key);
                             continue;
@@ -139,18 +140,14 @@ namespace adventofcode
 
                     if (kvp.Value.Count() == 1)
                     {
-                        order[index2] = kvp.Value.First().Key;
+                        order.Add(kvp.Value.First().Key);
+                        if (kvp.Value.First().Key.StartsWith("departure"))
+                        {
+                            total*=myTicket[index];
+                        }
                     }
-                    index2++;
-                }
-            }
 
-            long total = 1;
-            foreach(var what in order)
-            {
-                if (what.Value.StartsWith("departure"))
-                {
-                    total*=myTicket[what.Key];
+                    index++;
                 }
             }
 
