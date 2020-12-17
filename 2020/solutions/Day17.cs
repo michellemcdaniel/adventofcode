@@ -10,323 +10,89 @@ namespace adventofcode
         public static void Execute(string filename)
         {
             List<string> input = File.ReadAllLines(filename).ToList();
-
-            //List<Cube> cubes = new();
-
-            Dictionary<int, List<string>> cubes = new();
-            cubes.Add(0, input);
+            Cube cubeCube = new Cube(0, new Plane(input));
 
             for (int count = 0; count < 6; count++)
             {
-                cubes = Expand(cubes);
-                Dictionary<int, List<string>> newCubes = new();
-                foreach(var layer in cubes)
+                cubeCube.Expand();
+                Cube newCube = new();
+                foreach (var plane in cubeCube.Planes)
                 {
-                    int z = layer.Key;
-                    List<string> newLayer = new List<string>();
-                    for (int x = 0; x < layer.Value.Count(); x++)
+                    int z = plane.Key;
+                    Plane currentPlane = plane.Value;
+                    List<string> newPlane = new List<string>();
+                    for(int y = 0; y < currentPlane.Height; y++)
                     {
-                        string newX = "";
-                        for(int y = 0; y < layer.Value[x].Length; y++)
+                        string newLine = "";
+                        for (int x = 0; x < currentPlane.Width; x++)
                         {
-                            bool cubeActive = layer.Value[x][y] == '#';
-                            int totalActiveAround = 0;
-                            for (int i = -1; i < 2; i++)
-                            {
-                                for (int j = -1; j < 2; j++)
-                                {
-                                    for (int k = -1; k < 2; k++)
-                                    {
-                                        if (i == 0 && j == 0 && k == 0)
-                                        {
-                                            continue;
-                                        }
-
-                                        int newXCoord = x+i;
-                                        int newYCoord = y+j;
-                                        int newZCoord = z+k;
-
-                                        if (cubes.ContainsKey(newZCoord))
-                                        {
-                                            if (newXCoord < 0)
-                                            {
-                                                continue;
-                                            }
-                                            else if (newXCoord >= cubes[newZCoord].Count())
-                                            {
-                                                continue;
-                                            }
-                                            else if (newYCoord < 0)
-                                            {
-                                                continue;
-                                            }
-                                            else if (newYCoord >= cubes[newZCoord][newXCoord].Length)
-                                            {
-                                                continue;
-                                            }
-                                            else if (cubes[newZCoord][newXCoord][newYCoord] == '#')
-                                            {
-                                                totalActiveAround++;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            if ((totalActiveAround < 2 || totalActiveAround > 3) && cubeActive)
-                            {
-                                newX += '.';
-                            }
-                            else if (cubeActive)
-                            {
-                                newX += '#';
-                            }
-                            else if (!cubeActive && totalActiveAround == 3)
-                            {
-                                newX += '#';
-                            }
-                            else
-                            {
-                                newX += '.';
-                            }
+                            newLine += CheckRules(currentPlane.IsOccupied(x,y), cubeCube.ActiveAround(z, x, y));
                         }
-                        
-                        newLayer.Add(newX);
+                        newPlane.Add(newLine);
                     }
-                    newCubes.Add(z, newLayer);
-                }
 
-                cubes = newCubes;
+                    newCube.Planes.Add(z, new Plane(newPlane));
+                }
+                cubeCube = newCube;
             }
 
-            int totalActive = 0;
-            foreach (var kvp in cubes)
-            {
-                foreach(var line in kvp.Value)
-                {
-                    totalActive += line.Where(x => x == '#').Count();
-                }
-            }
+            Console.WriteLine($"Part one: {cubeCube.CountOccupied()}");
 
-            Console.WriteLine($"Part one: {totalActive}");
-
-            Dictionary<int, Dictionary<int, List<string>>> hypercube = new();
-            Dictionary<int, List<string>> first = new();
-            first.Add(0, input);
-            hypercube.Add(0, first);
-
+            HyperCube hyperCube = new HyperCube(0, new Cube(0, new Plane(input)));
             for (int count = 0; count < 6; count++)
             {
-                hypercube = ExpandHyperCube(hypercube);
+                hyperCube.Expand();
 
-                Dictionary<int, Dictionary<int, List<string>>> newHyperCube = new();
-                
-                foreach(var cube in hypercube)
+                Dictionary<int, Dictionary<int, List<string>>> newHypercube = new();
+                HyperCube newHyperCube = new();
+
+                foreach (var cube in hyperCube.Cubes)
                 {
                     int w = cube.Key;
-                    Dictionary<int, List<string>> newCubes = new();
-                    foreach(var layer in cube.Value)
+                    Cube newCube = new();
+                    foreach (var plane in cube.Value.Planes)
                     {
-                        int z = layer.Key;
-                        List<string> newLayer = new List<string>();
-                        for (int x = 0; x < layer.Value.Count(); x++)
+                        int z = plane.Key;
+                        Plane currentPlane = plane.Value;
+                        List<string> newPlane = new List<string>();
+                        for (int y = 0; y < currentPlane.Height; y++)
                         {
-                            string newX = "";
-                            for(int y = 0; y < layer.Value[x].Length; y++)
+                            string newLine = "";
+                            for (int x = 0; x < currentPlane.Width; x++)
                             {
-                                bool cubeActive = layer.Value[x][y] == '#';
-                                int totalActiveAround = 0;
-                                for (int i = -1; i < 2; i++)
-                                {
-                                    for (int j = -1; j < 2; j++)
-                                    {
-                                        for (int k = -1; k < 2; k++)
-                                        {
-                                            for (int l = -1; l < 2; l++)
-                                            {
-                                                if (i == 0 && j == 0 && k == 0 && l == 0)
-                                                {
-                                                    continue;
-                                                }
-
-                                                int newXCoord = x+i;
-                                                int newYCoord = y+j;
-                                                int newZCoord = z+k;
-                                                int newWCoord = w+l;
-
-                                                if (hypercube.ContainsKey(newWCoord))
-                                                {
-                                                    Dictionary<int, List<string>> curCube = hypercube[newWCoord];
-                                                    if (curCube.ContainsKey(newZCoord))
-                                                    {
-                                                        if (newXCoord < 0)
-                                                        {
-                                                            continue;
-                                                        }
-                                                        else if (newXCoord >= curCube[newZCoord].Count())
-                                                        {
-                                                            continue;
-                                                        }
-                                                        else if (newYCoord < 0)
-                                                        {
-                                                            continue;
-                                                        }
-                                                        else if (newYCoord >= curCube[newZCoord][newXCoord].Length)
-                                                        {
-                                                            continue;
-                                                        }
-                                                        else if (curCube[newZCoord][newXCoord][newYCoord] == '#')
-                                                        {
-                                                            totalActiveAround++;
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-                                if ((totalActiveAround < 2 || totalActiveAround > 3) && cubeActive)
-                                {
-                                    newX += '.';
-                                }
-                                else if (cubeActive)
-                                {
-                                    newX += '#';
-                                }
-                                else if (!cubeActive && totalActiveAround == 3)
-                                {
-                                    newX += '#';
-                                }
-                                else
-                                {
-                                    newX += '.';
-                                }
+                                newLine += CheckRules(currentPlane.IsOccupied(x,y), hyperCube.ActiveAround(w, z, x, y));
                             }
-                            
-                            newLayer.Add(newX);
+                            newPlane.Add(newLine);
                         }
-                        newCubes.Add(z, newLayer);
+                        newCube.Planes.Add(z, new Plane(newPlane));
                     }
-                    newHyperCube.Add(w, newCubes);
+                    newHyperCube.Cubes.Add(w, newCube);
                 }
-
-                hypercube = newHyperCube;
+                
+                hyperCube = newHyperCube;
             }
 
-            totalActive = 0;
-            foreach (var cube in hypercube)
-            {
-                foreach(var layer in cube.Value)
-                {
-                    foreach (var line in layer.Value)
-                        totalActive += line.Where(x => x == '#').Count();
-                }
-            }
-
-            Console.WriteLine($"Part two: {totalActive}");
+            Console.WriteLine($"Part two: {hyperCube.CountOccupied()}");
         }
 
-        public static Dictionary<int, List<string>> Expand(Dictionary<int, List<string>> original)
+        public static char CheckRules(bool isActive, int totalActiveAround)
         {
-            Dictionary<int, List<string>> newMap = new Dictionary<int, List<string>>();
-
-            int minRow = original.Keys.Min()-1;
-            int maxRow = original.Keys.Max()+1;
-            int rowLength = original.First().Value[0].Length+2;
-            int rowCount = original.First().Value.Count+2;
-
-            newMap.Add(minRow, new List<string>());
-            newMap.Add(maxRow, new List<string>());
-
-            for(int i = 0; i < rowCount; i++)
+            if ((totalActiveAround < 2 || totalActiveAround > 3) && isActive)
             {
-                newMap[minRow].Add(new String('.',rowLength));
-                newMap[maxRow].Add(new String('.',rowLength));
+                return '.';
             }
-
-            foreach (var layer in original)
+            else if (isActive)
             {
-                int z = layer.Key;
-                List<string> newLayer = new List<string>();
-                newLayer.Add(new String('.',rowLength));
-                foreach (string line in layer.Value)
-                {
-                    newLayer.Add($".{line}.");
-                }
-                newLayer.Add(new String('.',rowLength));
-                newMap.Add(z, newLayer);
+                return '#';
             }
-
-            return newMap;
-        }
-
-        public static Dictionary<int, Dictionary<int, List<string>>> ExpandHyperCube(Dictionary<int, Dictionary<int, List<string>>> original)
-        {
-            Dictionary<int, Dictionary<int, List<string>>> newMap = new();
-
-            // gets w-dimension
-            int minW = original.Keys.Min()-1;
-            int maxW = original.Keys.Max()+1;
-            int newZMin = 0;
-            int newZMax = 0;
-            int rowLength = 0;
-            int rowCount = 0;
-
-            foreach (var cube in original)
+            else if (!isActive && totalActiveAround == 3)
             {
-                int w = cube.Key;
-
-                Dictionary<int, List<string>> newCube = new();
-                newZMin = cube.Value.Keys.Min()-1;
-                newZMax = cube.Value.Keys.Max()+1;
-
-                rowLength = cube.Value.First().Value[0].Length+2;
-                rowCount = cube.Value.First().Value.Count+2;
-
-                newCube.Add(newZMin, new List<string>());
-                newCube.Add(newZMax, new List<string>());
-
-                for(int i = 0; i < rowCount; i++)
-                {
-                    newCube[newZMin].Add(new String('.',rowLength));
-                    newCube[newZMax].Add(new String('.',rowLength));
-                }
-
-                foreach (var layer in cube.Value)
-                {
-                    int z = layer.Key;
-                    List<string> newLayer = new List<string>();
-                    newLayer.Add(new String('.',rowLength));
-                    foreach (string line in layer.Value)
-                    {
-                        newLayer.Add($".{line}.");
-                    }
-                    newLayer.Add(new String('.',rowLength));
-                    newCube.Add(z, newLayer);
-                }
-
-                newMap.Add(w, newCube);
+                return '#';
             }
-
-            Dictionary<int, List<string>> newMinW = new();
-            Dictionary<int, List<string>> newMaxW = new();
-
-            for (int i = newZMin; i <= newZMax; i++)
+            else
             {
-                newMinW.Add(i, new List<string>());
-                newMaxW.Add(i, new List<string>());
-
-                for(int j = 0; j < rowCount; j++)
-                {
-                    newMinW[i].Add(new String('.',rowLength));
-                    newMaxW[i].Add(new String('.',rowLength));
-                }
+                return '.';
             }
-            newMap.Add(minW, newMinW);
-            newMap.Add(maxW, newMaxW);
-
-            return newMap;
         }
     }
 }
