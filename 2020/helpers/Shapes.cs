@@ -64,6 +64,7 @@ namespace adventofcode
                     {
                         continue;
                     }
+
                     if (IsOccupied(x+i, y+j))
                     {
                         totalActive++;
@@ -81,6 +82,47 @@ namespace adventofcode
                 totalActive += line.Where(x => x == '#').Count();
             }
             return totalActive;
+        }
+
+        public Plane Create(Func<bool, int, char> CheckRules, Cube cube, int z)
+        {
+            List<string> newPlane = new List<string>();
+            for (int y = 0; y < Height; y++)
+            {
+                string newLine = "";
+                for (int x = 0; x < Width; x++)
+                {
+                    newLine += CheckRules(IsOccupied(x,y), cube.ActiveAround(z, x, y));
+                }
+                newPlane.Add(newLine);
+            }
+
+            return new Plane(newPlane);
+        }
+
+        public Plane Create(Func<bool, int, char> CheckRules, HyperCube hyperCube, int w, int z)
+        {
+            List<string> newPlane = new List<string>();
+            for (int y = 0; y < Height; y++)
+            {
+                string newLine = "";
+                for (int x = 0; x < Width; x++)
+                {
+                    newLine += CheckRules(IsOccupied(x,y), hyperCube.ActiveAround(w, z, x, y));
+                }
+                newPlane.Add(newLine);
+            }
+
+            return new Plane(newPlane);
+        }
+
+        public void Output()
+        {
+            foreach(var row in Rows)
+            {
+                Console.WriteLine(row);
+            }
+            Console.WriteLine();
         }
     }
 
@@ -176,6 +218,18 @@ namespace adventofcode
                 totalActive += plane.Value.CountOccupied();
             }
             return totalActive;
+        }
+
+        public Cube Create(Func<bool, int, char> CheckRules, HyperCube hyperCube, int w)
+        {
+            Cube newCube = new();
+            foreach (var plane in Planes)
+            {
+                int z = plane.Key;
+                Plane newPlane = plane.Value.Create(CheckRules, hyperCube, w, z);
+                newCube.Planes.Add(z, newPlane);
+            }
+            return newCube;
         }
     }
 

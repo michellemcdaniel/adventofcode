@@ -19,19 +19,7 @@ namespace adventofcode
                 foreach (var plane in cubeCube.Planes)
                 {
                     int z = plane.Key;
-                    Plane currentPlane = plane.Value;
-                    List<string> newPlane = new List<string>();
-                    for(int y = 0; y < currentPlane.Height; y++)
-                    {
-                        string newLine = "";
-                        for (int x = 0; x < currentPlane.Width; x++)
-                        {
-                            newLine += CheckRules(currentPlane.IsOccupied(x,y), cubeCube.ActiveAround(z, x, y));
-                        }
-                        newPlane.Add(newLine);
-                    }
-
-                    newCube.Planes.Add(z, new Plane(newPlane));
+                    newCube.Planes.Add(z, plane.Value.Create(CheckRules, cubeCube, z));
                 }
                 cubeCube = newCube;
             }
@@ -49,24 +37,7 @@ namespace adventofcode
                 foreach (var cube in hyperCube.Cubes)
                 {
                     int w = cube.Key;
-                    Cube newCube = new();
-                    foreach (var plane in cube.Value.Planes)
-                    {
-                        int z = plane.Key;
-                        Plane currentPlane = plane.Value;
-                        List<string> newPlane = new List<string>();
-                        for (int y = 0; y < currentPlane.Height; y++)
-                        {
-                            string newLine = "";
-                            for (int x = 0; x < currentPlane.Width; x++)
-                            {
-                                newLine += CheckRules(currentPlane.IsOccupied(x,y), hyperCube.ActiveAround(w, z, x, y));
-                            }
-                            newPlane.Add(newLine);
-                        }
-                        newCube.Planes.Add(z, new Plane(newPlane));
-                    }
-                    newHyperCube.Cubes.Add(w, newCube);
+                    newHyperCube.Cubes.Add(w, cube.Value.Create(CheckRules, hyperCube, w));
                 }
                 
                 hyperCube = newHyperCube;
