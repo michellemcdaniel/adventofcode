@@ -226,8 +226,7 @@ namespace adventofcode
             foreach (var plane in Planes)
             {
                 int z = plane.Key;
-                Plane newPlane = plane.Value.Create(CheckRules, hyperCube, w, z);
-                newCube.Planes.Add(z, newPlane);
+                newCube.Planes.Add(z, plane.Value.Create(CheckRules, hyperCube, w, z));
             }
             return newCube;
         }
