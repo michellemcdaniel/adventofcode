@@ -10,37 +10,21 @@ namespace adventofcode
         public static void Execute(string filename)
         {
             List<string> input = File.ReadAllLines(filename).ToList();
-            Cube cubeCube = new Cube(0, new Plane(input));
+            Cube cube = new Cube(0, new Plane(input));
 
             for (int count = 0; count < 6; count++)
             {
-                cubeCube.Expand();
-                Cube newCube = new();
-                foreach (var plane in cubeCube.Planes)
-                {
-                    int z = plane.Key;
-                    newCube.Planes.Add(z, plane.Value.Create(CheckRules, cubeCube, z));
-                }
-                cubeCube = newCube;
+                cube.Expand();
+                cube.Generate(CheckRules);
             }
 
-            Console.WriteLine($"Part one: {cubeCube.CountOccupied()}");
+            Console.WriteLine($"Part one: {cube.CountOccupied()}");
 
             HyperCube hyperCube = new HyperCube(0, new Cube(0, new Plane(input)));
             for (int count = 0; count < 6; count++)
             {
                 hyperCube.Expand();
-
-                Dictionary<int, Dictionary<int, List<string>>> newHypercube = new();
-                HyperCube newHyperCube = new();
-
-                foreach (var cube in hyperCube.Cubes)
-                {
-                    int w = cube.Key;
-                    newHyperCube.Cubes.Add(w, cube.Value.Create(CheckRules, hyperCube, w));
-                }
-                
-                hyperCube = newHyperCube;
+                hyperCube.Generate(CheckRules);
             }
 
             Console.WriteLine($"Part two: {hyperCube.CountOccupied()}");

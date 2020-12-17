@@ -230,6 +230,17 @@ namespace adventofcode
             }
             return newCube;
         }
+
+        public void Generate(Func<bool, int, char> CheckRules)
+        {
+            Cube newCube = new();
+            foreach (var plane in Planes)
+            {
+                int z = plane.Key;
+                newCube.Planes.Add(z, plane.Value.Create(CheckRules, this, z));
+            }
+            Planes = newCube.Planes;
+        }
     }
 
     public class HyperCube
@@ -294,6 +305,19 @@ namespace adventofcode
                 totalActive += cube.Value.CountOccupied();
             }
             return totalActive;
+        }
+
+        public void Generate(Func<bool, int, char> CheckRules)
+        {
+            HyperCube newHyperCube = new();
+
+            foreach (var c in Cubes)
+            {
+                int w = c.Key;
+                newHyperCube.Cubes.Add(w, c.Value.Create(CheckRules, this, w));
+            }
+            
+            Cubes = newHyperCube.Cubes;
         }
     }
 }
