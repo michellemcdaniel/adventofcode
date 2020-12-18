@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Irony.Parsing;
 
 namespace adventofcode
 {
@@ -12,23 +13,36 @@ namespace adventofcode
             List<string> input = File.ReadAllLines(filename).ToList();
 
             long noPrecedence = 0;
+            long precedence = 0;
+            long withGrammarNoPrecedence = 0;
+            long withGrammarPrecedence = 0;
+            long withGrammarRegularPrecedence = 0;
 
             foreach(var i in input)
             {
                 noPrecedence+= DoMath(i.Split(" "));
-            }
-
-
-            long precedence = 0;
-            foreach(var i in input)
-            {
                 precedence+= DoMathPrecedence(i.Split(" "));
+                withGrammarNoPrecedence += Evaluate(i, Precedence.NoPrecedence);
+                withGrammarPrecedence += Evaluate(i, Precedence.SwappedPrecedence);
+                withGrammarRegularPrecedence += Evaluate(i, Precedence.RegularPrecedence);
             }
             
-
             Console.WriteLine($"Part one: {noPrecedence}");
-
             Console.WriteLine($"Part two: {precedence}");
+
+            Console.WriteLine($"Part one: {withGrammarNoPrecedence}");
+            Console.WriteLine($"Part two: {withGrammarPrecedence}");
+
+            Console.WriteLine($"Part none: {withGrammarRegularPrecedence}");
+        }
+
+        public static long Evaluate(string input, Precedence precedence)
+        {
+            Parser p = new Parser(new AoCGrammar(precedence));
+            var tree = p.Parse(input);
+
+            var root = ((IAoCValueNode) tree.Root.AstNode);
+            return root.Evaluate();
         }
 
         public static long DoMathPrecedence(string[] expression)
