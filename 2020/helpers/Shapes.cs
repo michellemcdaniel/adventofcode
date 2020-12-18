@@ -116,6 +116,21 @@ namespace adventofcode
             return new Plane(newPlane);
         }
 
+        public void Generate(Func<bool, int, char> CheckRules)
+        {
+            List<string> newPlane = new List<string>();
+            for (int y = 0; y < Height; y++)
+            {
+                string newLine = "";
+                for (int x = 0; x < Width; x++)
+                {
+                    newLine += CheckRules(IsOccupied(x,y), ActiveAround(x,y,0,0));
+                }
+                newPlane.Add(newLine);
+            }
+            Rows = newPlane;
+        }
+
         public void Output()
         {
             foreach(var row in Rows)
