@@ -138,11 +138,13 @@ namespace adventofcode
                     {
                         newRules.Add(expand);
                     }
-                    
-                    else if (expand.Contains(loopValues[i].ToString()) && expand.Split(" ").Count() + tokens[i].First().Split(" ").Count() <= maxTokens)
+                    else if (expand.Contains(loopValues[i].ToString()) 
+                        && expand.Split(" ").Count() + tokens[i].First().Split(" ").Count() <= maxTokens)
                     {
-                        rulesToExpand.Enqueue(expand.Replace(loopValues[i].ToString(), tokens[i].First()));
-                        rulesToExpand.Enqueue(expand.Replace(loopValues[i].ToString(), tokens[i].Last()));
+                        foreach (var token in tokens[i])
+                        {
+                            rulesToExpand.Enqueue(expand.Replace(loopValues[i].ToString(), token));
+                        }
                     }
                 }
             }
