@@ -94,19 +94,18 @@ namespace adventofcode
 
         public static string GetReducedString(string rule, Dictionary<int, string> rules)
         {
-            string reducedRule = rule;
             string next = rule;
 
             while (!next.Contains("|"))
             {
-                reducedRule = next;
+                rule = next;
                 foreach(var token in next.Split(" "))
                 {
                     next = next.Replace(token, rules[int.Parse(token)]);
                 }
             }
 
-            return reducedRule;
+            return rule;
         }
 
         public static List<List<List<string>>> ReduceWithRecursion(string rule, Dictionary<int, string> rules, int maxTokens)
@@ -114,50 +113,41 @@ namespace adventofcode
             List<List<string>> tokens = new();
             List<int> loopValues = new();
 
-            foreach (var token in GetReducedString(rule, rules).Split(" "))
+            foreach (var token in GetReducedString(rule, rules).Split(" ").Select(t => int.Parse(t)))
             {
-                int tokenVal = int.Parse(token);
-                string tokenRule = rules[tokenVal];
+                string tokenRule = rules[token];
 
-                if (tokenRule.Split(" ").Any(t => t == token))
+                if (tokenRule.Split(" ").Any(t => t == token.ToString()))
                 {
-                    loopValues.Add(tokenVal);
+                    loopValues.Add(token);
                     tokens.Add(tokenRule.Split(" | ").ToList());
                 }
             }
 
             List<string> newRules = new();
-            List<string> rulesWithLoops = tokens.First()
-                .SelectMany(a => tokens.Last().Select(b => $"{a} {b}"))
-                .Where(r => r.Split(" ").Any(t => loopValues.Any(v => v.ToString() == t))).ToList();
+            Queue<string> rulesToExpand = new Queue<string>(tokens.First()
+                    .SelectMany(a => tokens.Last().Select(b => $"{a} {b}"))
+                    .Where(r => r.Split(" ").Any(t => loopValues.Any(v => v.ToString() == t))));
 
-            while (rulesWithLoops.Any())
+            while (rulesToExpand.Any())
             {
-                List<string> newRulesWithLoops = new();
-                foreach(var r in rulesWithLoops)
+                string expand = rulesToExpand.Dequeue();
+                for (int i = 0; i < loopValues.Count(); i++)
                 {
-                    string newRule = r;
-                    for (int i = 0; i < loopValues.Count(); i++)
+                    if (!expand.Split(" ").Any(t => loopValues.Any(v => v.ToString() == t)))
                     {
-                        int replaceSize = tokens[i].First().Split(" ").Count();
-                        if (newRule.Contains(loopValues[i].ToString()))
-                        {
-                            while(newRule.Split(" ").Count() + replaceSize -1 <= maxTokens)
-                            {
-                                newRulesWithLoops.Add(newRule.Replace(loopValues[i].ToString(), tokens[i].First()));
-                                newRule = newRule.Replace(loopValues[i].ToString(), tokens[i].Last());
-                            }
-                        }
+                        newRules.Add(expand);
+                    }
+                    
+                    else if (expand.Contains(loopValues[i].ToString()) && expand.Split(" ").Count() + tokens[i].First().Split(" ").Count() <= maxTokens)
+                    {
+                        rulesToExpand.Enqueue(expand.Replace(loopValues[i].ToString(), tokens[i].First()));
+                        rulesToExpand.Enqueue(expand.Replace(loopValues[i].ToString(), tokens[i].Last()));
                     }
                 }
-
-                newRules.AddRange(newRulesWithLoops.Where(r => !r.Split(" ").Any(t => loopValues.Any(v => v.ToString() == t))));
-                rulesWithLoops = newRulesWithLoops.Except(newRules).ToList();
             }
 
-            List<List<List<string>>> reduced = newRules.Distinct().Select(r => Reduce(r, rules)).ToList();
-
-            return reduced;
+            return newRules.Distinct().Select(r => Reduce(r, rules)).ToList();
         }
 
         public static List<string> GetRules(Dictionary<int, string> rules, int index)
@@ -170,13 +160,13 @@ namespace adventofcode
             {
                 if (subRule.Length == 1 && subRule == "a" || subRule == "b")
                 {
-                    return new List<string>() { subRule };
+                    finalReturnList.Add(subRule);
+                    continue;
                 }
 
-                string[] tokens = subRule.Split(" ");
                 List<string> returnList = new List<string>() { "" };
                 
-                foreach (var token in tokens)
+                foreach (var token in subRule.Split(" "))
                 {
                     int tokenValue = int.Parse(token);
             
