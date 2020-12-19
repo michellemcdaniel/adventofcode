@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace adventofcode
 {
@@ -10,198 +11,187 @@ namespace adventofcode
         public static Dictionary<int, List<string>> matchedRules = new();
         public static void Execute(string filename)
         {
-            List<string> input = File.ReadAllLines(filename).ToList();
+            Queue<string> input = new Queue<string>(File.ReadAllLines(filename));
 
             Dictionary<int, string> rules = new();
-            List<string> messages = new();
+            List<string> messages = input.Where(i => !i.Contains(":")).ToList();
 
-            bool endRules = false;
-
-            foreach (string i in input)
+            while(!string.IsNullOrEmpty(input.Peek()))
             {
-                if (string.IsNullOrEmpty(i))
-                {
-                    endRules = true;
-                    continue;
-                }
-
-                if (!endRules)
-                {
-                    RegexHelper.Match(i, @"(\d+): (.*)", out int index, out string rule);
-                    rules.Add(index, rule);
-                }
-                else
-                {
-                    messages.Add(i);
-                }
+                RegexHelper.Match(input.Dequeue(), @"(\d+): (.*)", out int index, out string rule);
+                rules.Add(index, rule.Replace("\"",""));
             }
 
-            int count = 0;
+            List<List<string>> reducedZero = Reduce(rules[0], rules);
             List<string> notFirst = new();
-            List<string> fourtyTwo = GetRules(rules, 42);
-            List<string> thirtyOne = GetRules(rules, 31);
+            int count = 0;
+            int maxLength = reducedZero.Select(r => r.Select(s => s.Length).Max()).Sum();
 
             foreach(string message in messages)
             {
-                string newMessage = message;
-                bool good = false;
-
-                foreach(string f in fourtyTwo)
-                {
-                    if (newMessage.StartsWith(f))
-                    {
-                        newMessage = newMessage.Remove(0, f.Length);
-                        good = true;
-                        break;
-                    }
-                }
-                if (good)
-                {
-                    good = false;
-                    foreach(string f in fourtyTwo)
-                    {
-                        if (newMessage.StartsWith(f))
-                        {
-                            newMessage = newMessage.Remove(0, f.Length);
-                            good = true;
-                            break;
-                        }
-                    }
-                }
-                if (good)
-                {
-                    good = false;
-                    foreach (string f in thirtyOne)
-                    {
-                        if (newMessage.EndsWith(f))
-                        {
-                            good = true;
-                            newMessage = newMessage.Remove(newMessage.LastIndexOf(f), f.Length);
-                            break;
-                        }
-                    }
-                }
-
-                if (good && newMessage.Length == 0)
-                {
-                    count++;
-                }
-                else
-                {
-                    notFirst.Add(message);
-                }
+                if (Matches(message, reducedZero, maxLength)) count++;
+                else notFirst.Add(message);
             }
 
             Console.WriteLine($"Part one: {count}");
 
+            rules[8] = "42 | 42 8";
+            rules[11] = "42 31 | 42 11 31";
+            List<List<List<string>>> recursiveReduced = ReduceWithRecursion(rules[0], rules, 12);
+
             foreach (string message in notFirst)
             {
-                string newMessage = message;
-                bool good = true;
-                List<string> front = new();
-                List<string> back = new();
-                
-                while (newMessage.Length > 0 && good)
+                foreach (var patternList in recursiveReduced)
                 {
-                    good = false;
+                    int patternLength = patternList.Select(r => r.Select(s => s.Length).Max()).Sum();
 
-                    bool startGood = false;
-                    foreach (string f in fourtyTwo)
+                    if (Matches(message, patternList, patternLength))
                     {
-                        if (newMessage.StartsWith(f))
-                        {
-                            front.Add(f);
-                            newMessage = newMessage.Remove(0, f.Length);
-                            startGood = true;
-                            break;
-                        }
+                        count++;
+                        break;
                     }
-                    
-                    bool endGood = false;
-
-                    if (startGood && newMessage.Length > 0)
-                    {
-                        foreach (string f in thirtyOne)
-                        {
-                            if (newMessage.EndsWith(f))
-                            {
-                                back.Insert(0,f);
-                                newMessage = newMessage.Remove(newMessage.LastIndexOf(f), f.Length);
-                                endGood = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    if ((startGood && endGood) || (startGood && !endGood && back.Count() > 0))
-                    {
-                        good = true;
-                    }
-                }
-
-                if (good && back.Count() > 0 && front.Count() > back.Count())
-                {
-                    count++;
                 }
             }
 
-            
             Console.WriteLine($"Part two: {count}");
+        }
+
+        public static bool Matches(string message, List<List<string>> patterns, int maxLength)
+        {
+            List<string> matches = new List<string>();
+
+            if (message.Length != maxLength)
+            {
+                return false;
+            }
+            
+            int offset = 0;
+            bool good = false;
+
+            for (int i = 0; i < patterns.Count(); i++)
+            {
+                good = false;
+                foreach (var pattern in patterns[i])
+                {
+                    if (message.Substring(i*offset, pattern.Length) == pattern)
+                    {
+                        good = true;
+                        offset = pattern.Length;
+                        break;
+                    }
+                }
+
+                if (!good) break;
+            }
+
+            return good;
+        }
+
+        public static List<List<string>> Reduce(string rule, Dictionary<int, string> rules)
+        {
+            return GetReducedString(rule, rules).Split(" ").Select(token => GetRules(rules, int.Parse(token))).ToList();
+        }
+
+        public static string GetReducedString(string rule, Dictionary<int, string> rules)
+        {
+            string reducedRule = rule;
+            string next = rule;
+
+            while (!next.Contains("|"))
+            {
+                reducedRule = next;
+                foreach(var token in next.Split(" "))
+                {
+                    next = next.Replace(token, rules[int.Parse(token)]);
+                }
+            }
+
+            return reducedRule;
+        }
+
+        public static List<List<List<string>>> ReduceWithRecursion(string rule, Dictionary<int, string> rules, int maxTokens)
+        {
+            List<List<string>> tokens = new();
+            List<int> loopValues = new();
+
+            foreach (var token in GetReducedString(rule, rules).Split(" "))
+            {
+                int tokenVal = int.Parse(token);
+                string tokenRule = rules[tokenVal];
+
+                if (tokenRule.Split(" ").Any(t => t == token))
+                {
+                    loopValues.Add(tokenVal);
+                    tokens.Add(tokenRule.Split(" | ").ToList());
+                }
+            }
+
+            List<string> newRules = new();
+            List<string> rulesWithLoops = tokens.First()
+                .SelectMany(a => tokens.Last().Select(b => $"{a} {b}"))
+                .Where(r => r.Split(" ").Any(t => loopValues.Any(v => v.ToString() == t))).ToList();
+
+            while (rulesWithLoops.Any())
+            {
+                List<string> newRulesWithLoops = new();
+                foreach(var r in rulesWithLoops)
+                {
+                    string newRule = r;
+                    for (int i = 0; i < loopValues.Count(); i++)
+                    {
+                        int replaceSize = tokens[i].First().Split(" ").Count();
+                        if (newRule.Contains(loopValues[i].ToString()))
+                        {
+                            while(newRule.Split(" ").Count() + replaceSize -1 <= maxTokens)
+                            {
+                                newRulesWithLoops.Add(newRule.Replace(loopValues[i].ToString(), tokens[i].First()));
+                                newRule = newRule.Replace(loopValues[i].ToString(), tokens[i].Last());
+                            }
+                        }
+                    }
+                }
+
+                newRules.AddRange(newRulesWithLoops.Where(r => !r.Split(" ").Any(t => loopValues.Any(v => v.ToString() == t))));
+                rulesWithLoops = newRulesWithLoops.Except(newRules).ToList();
+            }
+
+            List<List<List<string>>> reduced = newRules.Distinct().Select(r => Reduce(r, rules)).ToList();
+
+            return reduced;
         }
 
         public static List<string> GetRules(Dictionary<int, string> rules, int index)
         {
             string rule = rules[index];
-
             List<string> subRules = rule.Split(" | ").ToList();
-
             List<string> finalReturnList = new();
 
             foreach(string subRule in subRules)
             {
-                string[] subSubRules = subRule.Split(" ");
-                if (subSubRules.Length == 1 && subSubRules.First().Trim('"') == "a" ||  subSubRules.First().Trim('"') == "b")
+                if (subRule.Length == 1 && subRule == "a" || subRule == "b")
                 {
-                    return new List<string>(){subSubRules.First().Trim('"')};
+                    return new List<string>() { subRule };
                 }
 
-                List<string> returnList = new List<string>();
-                foreach (var subSubRule in subSubRules)
+                string[] tokens = subRule.Split(" ");
+                List<string> returnList = new List<string>() { "" };
+                
+                foreach (var token in tokens)
                 {
-                    int subRuleIndex = int.Parse(subSubRule);
-                    List<string> newReturnList = new();
-                    List<string> subSubRuleList = new();
-                    if (matchedRules.ContainsKey(subRuleIndex))
+                    int tokenValue = int.Parse(token);
+            
+                    if (!matchedRules.TryGetValue(tokenValue, out List<string> tokenRuleList))
                     {
-                        subSubRuleList = matchedRules[subRuleIndex];
+                        tokenRuleList = GetRules(rules, tokenValue);
+                        matchedRules.Add(tokenValue, tokenRuleList);
                     }
-                    else
-                    {
-                        subSubRuleList = GetRules(rules, subRuleIndex);
-                        matchedRules.Add(subRuleIndex, subSubRuleList);
-                    }
-                    if (returnList.Count == 0)
-                    {
-                        returnList = subSubRuleList;
-                    }
-                    else
-                    {
-                        for (int i = 0; i < returnList.Count(); i++)
-                        {
-                            foreach (string s in subSubRuleList)
-                            {
-                                newReturnList.Add($"{returnList[i]}{s}");
-                            }
-                        }
-                        returnList = newReturnList;
-                    }
+
+                    returnList = returnList.SelectMany(a => tokenRuleList.Select(b => $"{a}{b}")).ToList();
                 }
                 finalReturnList.AddRange(returnList);
             }
 
-            return finalReturnList;
+            return finalReturnList.Distinct().ToList();
         }
-
-
     }
 }
