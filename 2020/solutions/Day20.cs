@@ -18,12 +18,6 @@ namespace adventofcode
             int currentTileNumber = 0;
             List<string> currentTile = new List<string>();
 
-            List<string> seaMonster = new List<string>() {
-                "                  # ",
-                "#    ##    ##    ###",
-                " #  #  #  #  #  #   "
-            };
-
             foreach (string i in input)
             {
                 if (RegexHelper.Match(i, @"Tile (\d+):", out int tileNumber))
@@ -53,8 +47,6 @@ namespace adventofcode
             locations.Add(tiles.First().Key, new Location(0,0,tiles.First().Value));
             tiles.Remove(tiles.First().Key);
 
-            int minRow, maxRow, minCol, maxCol = minRow = maxRow = minCol = 0;
-
             while(tiles.Any())
             {
                 List<int> tilesToRemove = new();
@@ -75,11 +67,6 @@ namespace adventofcode
 
                             tilesToAdd.Add(tile.Key, new Location(row, col, changed));
                             tilesToRemove.Add(tile.Key);
-
-                            minRow = Math.Min(row, minRow);
-                            maxRow = Math.Max(row, maxRow);
-                            minCol = Math.Min(col, minCol);
-                            maxCol = Math.Max(col, maxCol);
                         }
                     }
                 }
@@ -94,15 +81,17 @@ namespace adventofcode
                 }
             }
 
-            long multiplied = locations.First(l => l.Value.Col == minCol && l.Value.Row == minRow).Key *
-                locations.First(l => l.Value.Col == maxCol && l.Value.Row == minRow).Key *
-                locations.First(l => l.Value.Col == minCol && l.Value.Row == maxRow).Key *
-                locations.First(l => l.Value.Col == maxCol && l.Value.Row == maxRow).Key;
+            var minMin = locations.OrderBy(l => l.Value.Row).OrderBy(l => l.Value.Col).First();
+            var minMax = locations.OrderBy(l => l.Value.Row).OrderByDescending(l => l.Value.Col).First();
+            var maxMin = locations.OrderByDescending(l => l.Value.Row).OrderBy(l => l.Value.Col).First();
+            var maxMax = locations.OrderByDescending(l => l.Value.Row).OrderByDescending(l => l.Value.Col).First();
+
+            long multiplied = minMin.Key * minMax.Key * maxMin.Key * maxMax.Key;
 
             Console.WriteLine($"Part one: {multiplied}");
 
-            int width = maxCol - minCol + 1;
-            int height = maxRow - minRow + 1;
+            int width = maxMax.Value.Col - minMin.Value.Col + 1;
+            int height = maxMax.Value.Row - minMin.Value.Row + 1;
             int tileHeight = locations.First().Value.Tile.GetLength(0)-2;
             int tileWidth = locations.First().Value.Tile.GetLength(1)-2;
             char[,] map = new char[height*tileHeight, width*tileWidth];
@@ -110,8 +99,8 @@ namespace adventofcode
             foreach(var location in locations)
             {
                 Location loc = location.Value;
-                int newRow = loc.Row - minRow;
-                int newCol = loc.Col - minCol;
+                int newRow = loc.Row - minMin.Value.Row;
+                int newCol = loc.Col - minMin.Value.Col;
 
                 for (int i = 0; i < loc.Tile.GetLength(0)-2; i++)
                 {
@@ -124,6 +113,11 @@ namespace adventofcode
 
             int rotateCount = 0;
             char[,] mapWithMonsters = map;
+            List<string> seaMonster = new List<string>() {
+                "                  # ",
+                "#    ##    ##    ###",
+                " #  #  #  #  #  #   "
+            };
 
             while (rotateCount < 4)
             {
@@ -293,12 +287,10 @@ namespace adventofcode
 
         public static bool Compare(char[,] tileOne, char[,] tileTwo, out int rowChange, out int colChange)
         {
-            rowChange = colChange = 0;
-
-            colChange = CheckLeft(tileOne, tileTwo) ? 1 : colChange;
-            colChange = CheckLeft(tileTwo, tileOne) ? -1 : colChange;
-            rowChange = CheckBelow(tileOne, tileTwo) ? 1 : rowChange;
-            rowChange = CheckBelow(tileTwo, tileOne) ? -1 : rowChange;
+            colChange = CheckLeft(tileOne, tileTwo) ? 1 : 0;
+            colChange = colChange == 0 && CheckLeft(tileTwo, tileOne) ? -1 : colChange;
+            rowChange = colChange == 0 && CheckBelow(tileOne, tileTwo) ? 1 : 0;
+            rowChange = colChange == 0 && rowChange == 0 && CheckBelow(tileTwo, tileOne) ? -1 : rowChange;
 
             return rowChange != colChange;
         }
