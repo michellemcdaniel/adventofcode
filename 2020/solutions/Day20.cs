@@ -14,7 +14,7 @@ namespace adventofcode
             input.Add("");
 
             Dictionary<int, char[,]> tiles = new Dictionary<int, char[,]>();
-            Dictionary<int, Location> locations = new Dictionary<int, Location>();
+            Dictionary<long, Location> locations = new Dictionary<long, Location>();
             int currentTileNumber = 0;
             List<string> currentTile = new List<string>();
 
@@ -23,9 +23,6 @@ namespace adventofcode
                 "#    ##    ##    ###",
                 " #  #  #  #  #  #   "
             };
-
-            int tileHeight = 8;
-            int tileWidth = 8;
 
             foreach (string i in input)
             {
@@ -97,23 +94,22 @@ namespace adventofcode
                 }
             }
 
-            long minRowMinColKey = locations.First(l => l.Value.Col == minCol && l.Value.Row == minRow).Key;
-            long minRowMaxColKey = locations.First(l => l.Value.Col == maxCol && l.Value.Row == minRow).Key;
-            long maxRowMinColKey = locations.First(l => l.Value.Col == minCol && l.Value.Row == maxRow).Key;
-            long maxRowMaxColKey = locations.First(l => l.Value.Col == maxCol && l.Value.Row == maxRow).Key;
-
-            long multiplied = minRowMinColKey * minRowMaxColKey * maxRowMinColKey * maxRowMaxColKey;
+            long multiplied = locations.First(l => l.Value.Col == minCol && l.Value.Row == minRow).Key *
+                locations.First(l => l.Value.Col == maxCol && l.Value.Row == minRow).Key *
+                locations.First(l => l.Value.Col == minCol && l.Value.Row == maxRow).Key *
+                locations.First(l => l.Value.Col == maxCol && l.Value.Row == maxRow).Key;
 
             Console.WriteLine($"Part one: {multiplied}");
 
             int width = maxCol - minCol + 1;
             int height = maxRow - minRow + 1;
+            int tileHeight = locations.First().Value.Tile.GetLength(0)-2;
+            int tileWidth = locations.First().Value.Tile.GetLength(1)-2;
             char[,] map = new char[height*tileHeight, width*tileWidth];
 
             foreach(var location in locations)
             {
                 Location loc = location.Value;
-
                 int newRow = loc.Row - minRow;
                 int newCol = loc.Col - minCol;
 
@@ -126,31 +122,15 @@ namespace adventofcode
                 }
             }
 
-            int count = 0;
             int rotateCount = 0;
             char[,] mapWithMonsters = map;
 
-            while (count == 0 && rotateCount < 4)
+            while (rotateCount < 4)
             {
-                count = SearchForSeaMonsters(seaMonster, map, out mapWithMonsters);
-
-                if (count == 0)
-                {
-                    char[,] newMap = FlipVertical(map);
-                    count = SearchForSeaMonsters(seaMonster, newMap, out mapWithMonsters);
-                }
-
-                if (count == 0)
-                {
-                    char[,] newMap = FlipHorizontal(map);
-                    count = SearchForSeaMonsters(seaMonster, newMap, out mapWithMonsters);
-                }
-
-                if (count == 0)
-                {
-                    char[,] newMap = FlipHorizontal(FlipVertical(map));
-                    count = SearchForSeaMonsters(seaMonster, newMap, out mapWithMonsters);
-                }
+                if (SearchForSeaMonsters(seaMonster, map, out mapWithMonsters) ||
+                    SearchForSeaMonsters(seaMonster, FlipHorizontal(map), out mapWithMonsters) ||
+                    SearchForSeaMonsters(seaMonster, FlipVertical(map), out mapWithMonsters) ||
+                    SearchForSeaMonsters(seaMonster, FlipHorizontal(FlipVertical(map)), out mapWithMonsters)) break;
 
                 map = Rotate(map);
                 rotateCount++;
@@ -299,18 +279,6 @@ namespace adventofcode
             return true;
         }
 
-        public static bool CheckAbove(char[,] tileOne, char[,] tileTwo)
-        {
-            for (int i = 0; i < tileOne.GetLength(1); i++)
-            {
-                if (tileOne[0,i] != tileTwo[tileOne.GetLength(0)-1,i])
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
         public static bool CheckLeft(char[,] tileOne, char[,] tileTwo)
         {
             for (int i = 0; i < tileOne.GetLength(0);i++)
@@ -323,33 +291,21 @@ namespace adventofcode
             return true;
         }
 
-        public static bool CheckRight(char[,] tileOne, char[,] tileTwo)
-        {
-            for (int i = 0; i < tileOne.GetLength(0);i++)
-            {
-                if (tileOne[i,0] != tileTwo[i,tileOne.GetLength(1)-1])
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
         public static bool Compare(char[,] tileOne, char[,] tileTwo, out int rowChange, out int colChange)
         {
             rowChange = colChange = 0;
 
             colChange = CheckLeft(tileOne, tileTwo) ? 1 : colChange;
-            colChange = CheckRight(tileOne, tileTwo) ? -1 : colChange;
+            colChange = CheckLeft(tileTwo, tileOne) ? -1 : colChange;
             rowChange = CheckBelow(tileOne, tileTwo) ? 1 : rowChange;
-            rowChange = CheckAbove(tileOne, tileTwo) ? -1 : rowChange;
+            rowChange = CheckBelow(tileTwo, tileOne) ? -1 : rowChange;
 
             return rowChange != colChange;
         }
 
-        public static int SearchForSeaMonsters(List<string> seaMonster, char[,] map, out char[,] newMap)
+        public static bool SearchForSeaMonsters(List<string> seaMonster, char[,] map, out char[,] newMap)
         {
-            int count = 0;
+            bool found = false;
             newMap = map;
             for (int i = 0; i < map.GetLength(0)-seaMonster.Count(); i++)
             {
@@ -372,11 +328,11 @@ namespace adventofcode
                                 newMap[i+y, j+x] = newSubMap[y,x];
                             }
                         }
-                        count++;
+                        found = true;
                     }
                 }
-            } 
-            return count;
+            }
+            return found;
         }
 
         public static bool ContainsSeaMonster(List<string> seaMonster, char[,] location, out char[,] newLocation)
