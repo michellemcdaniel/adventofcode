@@ -17,18 +17,17 @@ namespace adventofcode
             foreach(string i in input)
             {
                 RegexHelper.Match(i, @"(.*) \(contains (.*)\)", out string ingredients, out string allergens);
-
                 allIngredients.AddRange(ingredients.Split(" "));
 
-                foreach (string all in allergens.Split(", "))
+                foreach (string allergen in allergens.Split(", "))
                 {
-                    if (possibleAllergens.TryGetValue(all, out List<string> current))
+                    if (possibleAllergens.TryGetValue(allergen, out List<string> current))
                     {
-                        possibleAllergens[all] = current.Intersect(ingredients.Split(" ")).ToList();
+                        possibleAllergens[allergen] = current.Intersect(ingredients.Split(" ")).ToList();
                     }
                     else
                     {
-                        possibleAllergens.Add(all, ingredients.Split(" ").ToList());
+                        possibleAllergens.Add(allergen, ingredients.Split(" ").ToList());
                     }
                 }
             }
