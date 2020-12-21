@@ -12,15 +12,15 @@ namespace adventofcode
         {
             List<string> input = File.ReadAllLines(filename).ToList();
             Dictionary<string, List<string>> possibleAllergens = new();
-            List<string> listEmAll = new();
+            List<string> allIngredients = new();
 
             foreach(string i in input)
             {
-                RegexHelper.Match(i, @"(.*) \(contains (.*)\)", out string ingredients, out string allergies);
+                RegexHelper.Match(i, @"(.*) \(contains (.*)\)", out string ingredients, out string allergens);
 
-                listEmAll.AddRange(ingredients.Split(" "));
+                allIngredients.AddRange(ingredients.Split(" "));
 
-                foreach (string all in allergies.Split(", "))
+                foreach (string all in allergens.Split(", "))
                 {
                     if (possibleAllergens.TryGetValue(all, out List<string> current))
                     {
@@ -44,7 +44,7 @@ namespace adventofcode
                 }
             }
             
-            Console.WriteLine($"Part One: {listEmAll.Where(i => !possibleAllergens.Values.SelectMany(x => x).Contains(i)).Count()}");
+            Console.WriteLine($"Part One: {allIngredients.Where(i => !possibleAllergens.Values.SelectMany(x => x).Contains(i)).Count()}");
             Console.WriteLine($"Part Two: {string.Join(",", possibleAllergens.OrderBy(a => a.Key).Select(a => a.Value.First()))}");
         }
     }
