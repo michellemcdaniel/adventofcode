@@ -8,8 +8,8 @@ namespace adventofcode
 {
     class Day22
     {
-        static Dictionary<int, List<string>> playerOneHistory = new();
-        static Dictionary<int, List<string>> playerTwoHistory = new();
+        static Dictionary<int, HashSet<string>> playerOneHistory = new();
+        static Dictionary<int, HashSet<string>> playerTwoHistory = new();
         public static void Execute(string filename)
         {
             Queue<string> input = new Queue<string>(File.ReadAllLines(filename));
@@ -31,10 +31,10 @@ namespace adventofcode
                 playerTwo.Enqueue(int.Parse(input.Dequeue()));
             }
 
-            Queue<int> winner = PlayGame(0, new Queue<int>(playerOne), new Queue<int>(playerTwo), false, out int result);
+            Queue<int> winner = PlayGame(0, new Queue<int>(playerOne), new Queue<int>(playerTwo), false, out bool playerOneWins);
             Console.WriteLine($"Part One: {GetScore(winner)}");
             
-            winner = PlayGame(0, new Queue<int>(playerOne), new Queue<int>(playerTwo), true, out result);
+            winner = PlayGame(0, new Queue<int>(playerOne), new Queue<int>(playerTwo), true, out playerOneWins);
             Console.WriteLine($"Part Two: {GetScore(winner)}");
         }
 
@@ -43,38 +43,36 @@ namespace adventofcode
             int score = 0;
             while (winner.Any())
             {
-                int count = winner.Count();
-                score += count * winner.Dequeue();
+                score += winner.Count() * winner.Dequeue();
             }
             return score;
         }
 
-        public static Queue<int> PlayGame(int game, Queue<int> playerOne, Queue<int> playerTwo, bool recursiveCombat, out int winnerId)
+        public static Queue<int> PlayGame(int game, Queue<int> playerOne, Queue<int> playerTwo, bool recursiveCombat, out bool playerOneWins)
         {
-            Queue<int> winner = new Queue<int>();
-            winnerId = 0;
-            playerOneHistory[game] = new List<string>();
-            playerTwoHistory[game] = new List<string>();
+            playerOneHistory[game] = new HashSet<string>();
+            playerTwoHistory[game] = new HashSet<string>();
 
             while (playerOne.Any() && playerTwo.Any())
             {
-                if (recursiveCombat && (CheckHistory(playerOne, playerOneHistory[game]) || CheckHistory(playerTwo, playerTwoHistory[game])))
+                if (recursiveCombat && 
+                    (playerOneHistory[game].Contains(string.Join("", playerOne)) || playerTwoHistory[game].Contains(string.Join("", playerTwo))))
                 {
-                    winnerId = 1;
+                    playerOneWins = true;
                     return playerOne;
                 }
 
-                playerOneHistory[game].Add(string.Join(" ", playerOne));
-                playerTwoHistory[game].Add(string.Join(" ", playerTwo));
+                playerOneHistory[game].Add(string.Join("", playerOne));
+                playerTwoHistory[game].Add(string.Join("", playerTwo));
 
                 int p1 = playerOne.Dequeue();
                 int p2 = playerTwo.Dequeue();
 
                 if (recursiveCombat && (p1 <= playerOne.Count() && p2 <= playerTwo.Count()))
                 {
-                    PlayGame(game+1, new Queue<int>(playerOne.Take(p1)), new Queue<int>(playerTwo.Take(p2)), recursiveCombat, out int newWinnerId);
+                    PlayGame(game+1, new Queue<int>(playerOne.Take(p1)), new Queue<int>(playerTwo.Take(p2)), recursiveCombat, out playerOneWins);
 
-                    if (newWinnerId == 1)
+                    if (playerOneWins)
                     {
                         playerOne.Enqueue(p1);
                         playerOne.Enqueue(p2);
@@ -97,21 +95,8 @@ namespace adventofcode
                 }
             }
 
-            winnerId = playerOne.Count() > 0 ? 1 : 2;
+            playerOneWins = playerOne.Count() > 0;
             return playerOne.Count() > 0 ? playerOne : playerTwo;
-        }
-
-        public static bool CheckHistory(Queue<int> deck, List<string> decks)
-        {
-            foreach (var oldDeck in decks.Where(d => d.StartsWith(deck.Peek().ToString())))
-            {
-                if (oldDeck == string.Join(" ", deck))
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
     }
 }
