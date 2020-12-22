@@ -8,8 +8,8 @@ namespace adventofcode
 {
     class Day22
     {
-        static Dictionary<int, HashSet<string>> playerOneHistory = new();
-        static Dictionary<int, HashSet<string>> playerTwoHistory = new();
+        static Dictionary<int, List<string>> playerOneHistory = new();
+        static Dictionary<int, List<string>> playerTwoHistory = new();
         public static void Execute(string filename)
         {
             Queue<string> input = new Queue<string>(File.ReadAllLines(filename));
@@ -50,13 +50,13 @@ namespace adventofcode
 
         public static Queue<int> PlayGame(int game, Queue<int> playerOne, Queue<int> playerTwo, bool recursiveCombat, out bool playerOneWins)
         {
-            playerOneHistory[game] = new HashSet<string>();
-            playerTwoHistory[game] = new HashSet<string>();
+            playerOneHistory[game] = new List<string>();
+            playerTwoHistory[game] = new List<string>();
 
             while (playerOne.Any() && playerTwo.Any())
             {
-                if (recursiveCombat && 
-                    (playerOneHistory[game].Contains(string.Join("", playerOne)) || playerTwoHistory[game].Contains(string.Join("", playerTwo))))
+                if (recursiveCombat && playerOneHistory[game].Contains(string.Join("", playerOne)) &&
+                    (playerOneHistory[game].IndexOf(string.Join("", playerOne)) == playerTwoHistory[game].IndexOf(string.Join("", playerTwo))))
                 {
                     playerOneWins = true;
                     return playerOne;
