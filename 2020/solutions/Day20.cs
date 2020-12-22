@@ -117,13 +117,22 @@ namespace adventofcode
                 "#    ##    ##    ###",
                 " #  #  #  #  #  #   "
             };
+            List<(int, int)> seaMonsterLocations = new();
+
+            for(int i = 0; i < seaMonster.Count(); i++)
+            {
+                for(int j = 0; j < seaMonster[i].Length; j++)
+                {
+                    if (seaMonster[i][j] == '#') seaMonsterLocations.Add((i,j));
+                }
+            }
 
             while (rotateCount < 4)
             {
-                if (SearchForSeaMonsters(seaMonster, map, out mapWithMonsters) ||
-                    SearchForSeaMonsters(seaMonster, FlipHorizontal(map), out mapWithMonsters) ||
-                    SearchForSeaMonsters(seaMonster, FlipVertical(map), out mapWithMonsters) ||
-                    SearchForSeaMonsters(seaMonster, FlipHorizontal(FlipVertical(map)), out mapWithMonsters)) break;
+                if (SearchForSeaMonsters(seaMonsterLocations, map, out mapWithMonsters) ||
+                    SearchForSeaMonsters(seaMonsterLocations, FlipHorizontal(map), out mapWithMonsters) ||
+                    SearchForSeaMonsters(seaMonsterLocations, FlipVertical(map), out mapWithMonsters) ||
+                    SearchForSeaMonsters(seaMonsterLocations, FlipHorizontal(FlipVertical(map)), out mapWithMonsters)) break;
 
                 map = Rotate(map);
                 rotateCount++;
@@ -262,26 +271,16 @@ namespace adventofcode
 
         public static bool CheckBelow(char[,] tileOne, char[,] tileTwo)
         {
-            for (int i = 0; i < tileOne.GetLength(1); i++)
-            {
-                if (tileOne[tileOne.GetLength(0)-1,i] != tileTwo[0,i])
-                {
-                    return false;
-                }
-            }
-            return true;
+            string tileOneBorder = string.Join("",Enumerable.Range(0, tileOne.GetLength(1)).Select(x => tileOne[tileOne.GetLength(0)-1,x]));
+            string tileTwoBorder = string.Join("", Enumerable.Range(0, tileTwo.GetLength(1)).Select(x => tileTwo[0,x]));
+            return tileOneBorder == tileTwoBorder;
         }
 
         public static bool CheckLeft(char[,] tileOne, char[,] tileTwo)
         {
-            for (int i = 0; i < tileOne.GetLength(0);i++)
-            {
-                if (tileOne[i,tileOne.GetLength(1)-1] != tileTwo[i,0])
-                {
-                    return false;
-                }
-            }
-            return true;
+            string tileOneBorder = string.Join("",Enumerable.Range(0, tileOne.GetLength(0)).Select(x => tileOne[x, tileOne.GetLength(1)-1]));
+            string tileTwoBorder = string.Join("", Enumerable.Range(0, tileTwo.GetLength(0)).Select(x => tileTwo[x,0]));
+            return tileOneBorder == tileTwoBorder;
         }
 
         public static bool Compare(char[,] tileOne, char[,] tileTwo, out int rowChange, out int colChange)
@@ -294,53 +293,35 @@ namespace adventofcode
             return rowChange != colChange;
         }
 
-        public static bool SearchForSeaMonsters(List<string> seaMonster, char[,] map, out char[,] newMap)
+        public static bool SearchForSeaMonsters(List<(int, int)> seaMonsterLocations, char[,] map, out char[,] newMap)
         {
             bool found = false;
             newMap = map;
-            for (int i = 0; i < map.GetLength(0)-seaMonster.Count(); i++)
+
+            for (int i = 0; i < map.GetLength(0)-seaMonsterLocations.Select(x => x.Item1).Max(); i++)
             {
-                for (int j = 0; j < map.GetLength(1) - seaMonster.First().Length; j++)
+                for (int j = 0; j < map.GetLength(1) - seaMonsterLocations.Select(x => x.Item2).Max(); j++)
                 {
-                    char[,] subMap = new char[seaMonster.Count(),seaMonster.First().Length];
-                    for (int y = 0; y < seaMonster.Count(); y++)
-                    {
-                        for (int x = 0; x < seaMonster.First().Length; x++)
-                        {
-                            subMap[y,x] = map[i+y, j+x];
-                        }
-                    }
-                    if (ContainsSeaMonster(seaMonster, subMap, out char[,] newSubMap))
-                    {
-                        for(int y = 0; y < newSubMap.GetLength(0); y++)
-                        {
-                            for (int x = 0; x < newSubMap.GetLength(1); x++)
-                            {
-                                newMap[i+y, j+x] = newSubMap[y,x];
-                            }
-                        }
-                        found = true;
-                    }
+                    found = ContainsSeaMonster(seaMonsterLocations, newMap, i, j, out newMap) ? true : found;
                 }
             }
             return found;
         }
 
-        public static bool ContainsSeaMonster(List<string> seaMonster, char[,] location, out char[,] newLocation)
+        public static bool ContainsSeaMonster(List<(int, int)> seaMonsterLocations, char[,] location, int iOffset, int jOffset, out char[,] newLocation)
         {
-            newLocation = location;
-            for (int i = 0; i < seaMonster.Count(); i++)
+            newLocation = location.Clone() as char[,];
+
+            foreach((int i, int j) in seaMonsterLocations)
             {
-                for(int j = 0; j < seaMonster[i].Length; j++)
+                if (location[i+iOffset,j+jOffset] == '#')
                 {
-                    if (seaMonster[i][j] == '#' && seaMonster[i][j] != location[i,j])
-                    {
-                        return false;
-                    }
-                    else if (seaMonster[i][j] == '#')
-                    {
-                        newLocation[i,j] = 'O';
-                    }
+                    newLocation[i+iOffset,j+jOffset] = 'O';
+                }
+                else
+                {
+                    newLocation = location;
+                    return false;
                 }
             }
 
