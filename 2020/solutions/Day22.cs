@@ -63,22 +63,18 @@ namespace adventofcode
                 int p1 = playerOne.Dequeue();
                 int p2 = playerTwo.Dequeue();
 
+                bool playerOneWinsRound = false;
+
                 if (recursiveCombat && (p1 <= playerOne.Count() && p2 <= playerTwo.Count()))
                 {
-                    PlayGame(game+1, new Queue<int>(playerOne.Take(p1)), new Queue<int>(playerTwo.Take(p2)), recursiveCombat, out playerOneWins);
-
-                    if (playerOneWins)
-                    {
-                        playerOne.Enqueue(p1);
-                        playerOne.Enqueue(p2);
-                    }
-                    else
-                    {
-                        playerTwo.Enqueue(p2);
-                        playerTwo.Enqueue(p1);
-                    }
+                    PlayGame(game+1, new Queue<int>(playerOne.Take(p1)), new Queue<int>(playerTwo.Take(p2)), recursiveCombat, out playerOneWinsRound);
                 }
-                else if (p1 > p2)
+                else
+                {
+                    playerOneWinsRound = p1 > p2;
+                }
+
+                if (playerOneWinsRound)
                 {
                     playerOne.Enqueue(p1);
                     playerOne.Enqueue(p2);
