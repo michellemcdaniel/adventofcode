@@ -8,8 +8,6 @@ namespace adventofcode
 {
     class Day22
     {
-        static Dictionary<int, List<string>> playerOneHistory = new();
-        static Dictionary<int, List<string>> playerTwoHistory = new();
         public static void Execute(string filename)
         {
             Queue<string> input = new Queue<string>(File.ReadAllLines(filename));
@@ -50,20 +48,17 @@ namespace adventofcode
 
         public static Queue<int> PlayGame(int game, Queue<int> playerOne, Queue<int> playerTwo, bool recursiveCombat, out bool playerOneWins)
         {
-            playerOneHistory[game] = new List<string>();
-            playerTwoHistory[game] = new List<string>();
+            HashSet<string> history = new HashSet<string>();
 
             while (playerOne.Any() && playerTwo.Any())
             {
-                if (recursiveCombat && playerOneHistory[game].Contains(string.Join("", playerOne)) &&
-                    (playerOneHistory[game].IndexOf(string.Join("", playerOne)) == playerTwoHistory[game].IndexOf(string.Join("", playerTwo))))
+                if (recursiveCombat && history.Contains($"{string.Join("", playerOne)}+{string.Join("", playerTwo)}"))
                 {
                     playerOneWins = true;
                     return playerOne;
                 }
 
-                playerOneHistory[game].Add(string.Join("", playerOne));
-                playerTwoHistory[game].Add(string.Join("", playerTwo));
+                history.Add($"{string.Join("", playerOne)}+{string.Join("", playerTwo)}");
 
                 int p1 = playerOne.Dequeue();
                 int p2 = playerTwo.Dequeue();
