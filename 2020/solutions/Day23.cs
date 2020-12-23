@@ -11,107 +11,94 @@ namespace adventofcode
         public static void Execute(string filename)
         {
             List<int> order = new List<int>() { 6, 5, 3, 4, 2, 7, 9, 1, 8 };
-            //List<int> order = new List<int>() {3,8,9,1,2,5,4,6,7}; // sample
-            int currentCup = 0;
 
-            for(int i = 0; i < 100; i++)
-            {
-                int currentLabel = order[currentCup];
-                int label = currentLabel;
+            Dictionary<int, Cup> cupMap = SetupGame(order); 
+            cupMap = PlayGame(100, cupMap, order[0]);
+            Console.WriteLine($"Part One: {cupMap[1].Output()}");
 
-                List<int> toRemove = new List<int> { order[(currentCup+1)%9], order[(currentCup+2)%9], order[(currentCup+3)%9]};
-                
-                foreach (var remove in toRemove)
-                {
-                    order.Remove(remove);
-                }
-
-                int insertAt = -1;
-
-                while (insertAt < 0)
-                {
-                    label = label-1 <= 0 ? order.Max() : label - 1;
-
-                    if (order.Contains(label))
-                    {
-                        insertAt = order.IndexOf(label);
-                    }
-                }
-
-                order.InsertRange(insertAt+1, toRemove);
-                currentCup = (order.IndexOf(currentLabel)+1)%order.Count();
-            }
-            
-            List<int> newcurrentList = order.Skip(order.IndexOf(1)+1).ToList();
-            newcurrentList.AddRange(order.Take(order.IndexOf(1)));
-
-            Console.WriteLine($"Part One: {string.Join("", newcurrentList)}");
-
-            order = new List<int>() { 6, 5, 3, 4, 2, 7, 9, 1, 8 };
             order.AddRange(Enumerable.Range(10,(1000000-9)));
+            cupMap = SetupGame(order);
+            cupMap = PlayGame(10000000, cupMap, order[0]);
+            Console.WriteLine($"Part Two: {cupMap[1].Next.Label} * {cupMap[1].Next.Next.Label} = {(long)cupMap[1].Next.Label * (long)cupMap[1].Next.Next.Label}");
+        }
 
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-            currentCup = 0;
+        public static Dictionary<int, Cup> SetupGame(List<int> order)
+        {
+            List<Cup> cupList = order.Select(c => new Cup(c)).ToList();
 
-            for(int i = 0; i < 10000000; i++)
+            for (int i = 0; i < cupList.Count(); i++)
             {
-                int currentLabel = order[currentCup];
-                int label = currentLabel;
-                if (i%10000 == 0)
+                if (i+1 == cupList.Count())
                 {
-                    sw.Stop();
-                    Console.WriteLine($"{i}: {currentLabel} {currentCup} {sw.ElapsedMilliseconds}");
-                    sw.Restart();
-                }
-                
-                List<int> toRemove = new List<int> { order[(currentCup+1)%order.Count()], order[(currentCup+2)%order.Count()], order[(currentCup+3)%order.Count()]};
-                
-                if (currentCup+3 < order.Count())
-                {
-                    order.RemoveRange(currentCup+1, 3);
-                }
-                else if (currentCup+2 < order.Count())
-                {
-                    order.RemoveRange(currentCup+1, 2);
-                    order.RemoveAt(0);
-                }
-                else if (currentCup+1 < order.Count())
-                {
-                    order.RemoveRange(currentCup+1, 1);
-                    order.RemoveRange(0, 2);
+                    cupList[i].Next = cupList[0];
                 }
                 else
                 {
-                    order.RemoveRange(0, 3);
+                    cupList[i].Next = cupList[i+1];
                 }
-
-                foreach (var remove in toRemove)
-                {
-                    order.Remove(remove);
-                }
-
-                int insertAt = -1;
-
-                while (insertAt < 0)
-                {
-                    label = label-1 <= 0 ? order.Max() : label - 1;
-
-                    if (order.Contains(label))
-                    {
-                        insertAt = order.IndexOf(label);
-                    }
-                }
-
-                if (insertAt+1 < order.Count())
-                    order.InsertRange(insertAt+1, toRemove);
-                else
-                    order.AddRange(toRemove);
-
-                currentCup = (order.IndexOf(currentLabel)+1)%order.Count();
             }
-            
-            Console.WriteLine($"Part Two: {order[order.IndexOf(1)+1]} * {order[order.IndexOf(1)+2]} = {order[order.IndexOf(1)+1] * order[order.IndexOf(1)+2]}");
+
+            return cupList.ToDictionary(c => c.Label, c => c);
+        }
+
+        public static Dictionary<int, Cup> PlayGame(int iterations, Dictionary<int, Cup> map, int first)
+        {
+            Dictionary<int, Cup> cupMap = new Dictionary<int, Cup>(map);
+            Cup currentCupNode = cupMap[first];
+
+            for(int i = 0; i < iterations; i++)
+            {
+                int currentLabel = currentCupNode.Label;
+                int label = currentLabel;
+                
+                List<Cup> toRemove = new List<Cup>();
+                toRemove.Add(currentCupNode.Next);
+                toRemove.Add(toRemove.Last().Next);
+                toRemove.Add(toRemove.Last().Next);
+                currentCupNode.Next = toRemove.Last().Next;
+
+                Cup insertAt = null;
+                while (insertAt == null)
+                {
+                    label = label-1 <= 0 ? cupMap.Keys.Max() : label - 1;
+                    if (toRemove.Any(c => c.Label == label))
+                    {
+                        continue;
+                    }
+
+                    insertAt = cupMap[label];
+                }
+
+                toRemove.Last().Next = insertAt.Next;
+                insertAt.Next = toRemove.First();
+                currentCupNode = currentCupNode.Next;
+            }
+
+            return cupMap;
+        }
+
+        public class Cup
+        {
+            public int Label {get;set;}
+            public Cup Next {get;set;}
+            public Cup (int label)
+            {
+                Label = label;
+            }
+
+            public string Output()
+            {
+                return Next.Output(Label);
+            }
+
+            public string Output(int i)
+            {
+                if (Next.Label != i)
+                {
+                    return $"{Label}{Next.Output(i)}";
+                }
+                return Label.ToString();
+            }
         }
     }
 }
