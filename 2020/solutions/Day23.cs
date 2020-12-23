@@ -24,21 +24,22 @@ namespace adventofcode
 
         public static Dictionary<int, Cup> SetupGame(List<int> order)
         {
-            List<Cup> cupList = order.Select(c => new Cup(c)).ToList();
+            Cup previousCup = null;
+            Dictionary<int, Cup> cups = new();
 
-            for (int i = 0; i < cupList.Count(); i++)
+            for (int i = 0; i < order.Count(); i++)
             {
-                if (i+1 == cupList.Count())
+                Cup currentCup = new Cup(order[i]);
+                if (previousCup != null)
                 {
-                    cupList[i].Next = cupList[0];
+                    previousCup.Next = currentCup;
                 }
-                else
-                {
-                    cupList[i].Next = cupList[i+1];
-                }
+                cups.Add(order[i], currentCup);
+                previousCup = currentCup;
             }
 
-            return cupList.ToDictionary(c => c.Label, c => c);
+            previousCup.Next = cups.First().Value;
+            return cups;
         }
 
         public static Dictionary<int, Cup> PlayGame(int iterations, Dictionary<int, Cup> map, int first)
