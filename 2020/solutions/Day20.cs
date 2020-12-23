@@ -26,7 +26,7 @@ namespace adventofcode
                 }
                 else if (!string.IsNullOrEmpty(i))
                 {
-                    currentTile.Add(i);
+                    currentTile.Add(i.Replace('.',' ').Replace('#', '.'));
                 }
                 else
                 {
@@ -48,6 +48,7 @@ namespace adventofcode
 
             while(tiles.Any())
             {
+                DumpTile(BuildMap(locations));
                 List<int> tilesToRemove = new();
                 Dictionary<int, Location> tilesToAdd = new();
                 foreach(var location in locations)
@@ -86,29 +87,10 @@ namespace adventofcode
             var maxMax = locations.OrderByDescending(l => l.Value.Row).OrderByDescending(l => l.Value.Col).First();
 
             long multiplied = minMin.Key * minMax.Key * maxMin.Key * maxMax.Key;
+            char[,] map = BuildMap(locations);
+            DumpTile(map);
 
-            Console.WriteLine($"Part one: {multiplied}");
-
-            int width = maxMax.Value.Col - minMin.Value.Col + 1;
-            int height = maxMax.Value.Row - minMin.Value.Row + 1;
-            int tileHeight = locations.First().Value.Tile.GetLength(0)-2;
-            int tileWidth = locations.First().Value.Tile.GetLength(1)-2;
-            char[,] map = new char[height*tileHeight, width*tileWidth];
-
-            foreach(var location in locations)
-            {
-                Location loc = location.Value;
-                int newRow = loc.Row - minMin.Value.Row;
-                int newCol = loc.Col - minMin.Value.Col;
-
-                for (int i = 0; i < loc.Tile.GetLength(0)-2; i++)
-                {
-                    for (int j = 0; j < loc.Tile.GetLength(1)-2; j++)
-                    {
-                        map[newRow*tileHeight+i, newCol*tileWidth+j] = loc.Tile[i+1,j+1];
-                    }
-                }
-            }
+            
 
             int rotateCount = 0;
             char[,] mapWithMonsters = map;
@@ -141,12 +123,15 @@ namespace adventofcode
             int roughWaters = 0;
             foreach(char c in mapWithMonsters)
             {
-                if (c == '#')
+                if (c == '.')
                 {
                     roughWaters++;
                 }
             }
 
+            DumpTile(mapWithMonsters);
+
+            Console.WriteLine($"Part one: {multiplied}");
             Console.WriteLine($"Part two: {roughWaters}");
         }
 
@@ -162,6 +147,47 @@ namespace adventofcode
                 Col = col;
                 Tile = tile;
             }
+        }
+
+        public static char[,] BuildMap(Dictionary<long, Location> locations)
+        {
+            int minRow = locations.Select(l => l.Value.Row).Min();
+            int maxRow = locations.Select(l => l.Value.Row).Max();
+            int minCol = locations.Select(l => l.Value.Col).Min();
+            int maxCol = locations.Select(l => l.Value.Col).Max();
+
+            int tileHeight = locations.First().Value.Tile.GetLength(0)-2;
+            int tileWidth = locations.First().Value.Tile.GetLength(1)-2;
+
+            int height = maxRow - minRow + 1;
+            int width = maxCol - minCol + 1;
+
+            char[,] map = new char[height*tileHeight, width*tileWidth];
+
+            for(int i = 0; i < map.GetLength(0); i++)
+            {
+                for(int j = 0; j < map.GetLength(1); j++)
+                {
+                    map[i,j] = ' ';
+                }
+            }
+
+            foreach(var location in locations)
+            {
+                Location loc = location.Value;
+                int newRow = loc.Row - minRow;
+                int newCol = loc.Col - minCol;
+
+                for (int i = 0; i < loc.Tile.GetLength(0)-2; i++)
+                {
+                    for (int j = 0; j < loc.Tile.GetLength(1)-2; j++)
+                    {
+                        map[newRow*tileHeight+i, newCol*tileWidth+j] = loc.Tile[i+1,j+1];
+                    }
+                }
+            }
+
+            return map;
         }
 
         public static char[,] Rotate(char[,] original)
@@ -188,6 +214,7 @@ namespace adventofcode
                 }
                 Console.WriteLine();
             }
+            Console.WriteLine();
         }
 
         public static bool CompareFlipped(char[,] tileOne, char[,] tileTwo, out char[,] flipped, out int rowChange, out int colChange)
@@ -314,9 +341,9 @@ namespace adventofcode
 
             foreach((int i, int j) in seaMonsterLocations)
             {
-                if (location[i+iOffset,j+jOffset] == '#')
+                if (location[i+iOffset,j+jOffset] == '.')
                 {
-                    newLocation[i+iOffset,j+jOffset] = 'O';
+                    newLocation[i+iOffset,j+jOffset] = '@';
                 }
                 else
                 {
