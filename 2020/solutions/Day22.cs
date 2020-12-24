@@ -11,7 +11,7 @@ namespace adventofcode
         public static void Execute(string filename)
         {
             Queue<string> input = new Queue<string>(File.ReadAllLines(filename));
-            Queue<int> playerOne = new Queue<int>();
+            Queue<int> playerOne = new();
             Queue<int> playerTwo = new();
 
             input.Dequeue();
@@ -29,10 +29,10 @@ namespace adventofcode
                 playerTwo.Enqueue(int.Parse(input.Dequeue()));
             }
 
-            Queue<int> winner = PlayGame(0, new Queue<int>(playerOne), new Queue<int>(playerTwo), false, out bool playerOneWins);
+            Queue<int> winner = PlayGame(new Queue<int>(playerOne), new Queue<int>(playerTwo), false, out bool playerOneWins);
             Console.WriteLine($"Part One: {GetScore(winner)}");
             
-            winner = PlayGame(0, new Queue<int>(playerOne), new Queue<int>(playerTwo), true, out playerOneWins);
+            winner = PlayGame(new Queue<int>(playerOne), new Queue<int>(playerTwo), true, out playerOneWins);
             Console.WriteLine($"Part Two: {GetScore(winner)}");
         }
 
@@ -46,28 +46,25 @@ namespace adventofcode
             return score;
         }
 
-        public static Queue<int> PlayGame(int game, Queue<int> playerOne, Queue<int> playerTwo, bool recursiveCombat, out bool playerOneWins)
+        public static Queue<int> PlayGame(Queue<int> playerOne, Queue<int> playerTwo, bool recursiveCombat, out bool playerOneWins)
         {
             HashSet<string> history = new HashSet<string>();
 
             while (playerOne.Any() && playerTwo.Any())
             {
-                if (recursiveCombat && history.Contains($"{string.Join("", playerOne)}+{string.Join("", playerTwo)}"))
+                if (recursiveCombat && !history.Add($"{string.Join("", playerOne)}+{string.Join("", playerTwo)}"))
                 {
                     playerOneWins = true;
                     return playerOne;
                 }
 
-                history.Add($"{string.Join("", playerOne)}+{string.Join("", playerTwo)}");
-
                 int p1 = playerOne.Dequeue();
                 int p2 = playerTwo.Dequeue();
-
                 bool playerOneWinsRound = false;
 
                 if (recursiveCombat && (p1 <= playerOne.Count() && p2 <= playerTwo.Count()))
                 {
-                    PlayGame(game+1, new Queue<int>(playerOne.Take(p1)), new Queue<int>(playerTwo.Take(p2)), recursiveCombat, out playerOneWinsRound);
+                    PlayGame(new Queue<int>(playerOne.Take(p1)), new Queue<int>(playerTwo.Take(p2)), recursiveCombat, out playerOneWinsRound);
                 }
                 else
                 {
@@ -87,7 +84,7 @@ namespace adventofcode
             }
 
             playerOneWins = playerOne.Count() > 0;
-            return playerOne.Count() > 0 ? playerOne : playerTwo;
+            return playerOneWins ? playerOne : playerTwo;
         }
     }
 }

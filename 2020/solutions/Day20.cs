@@ -90,8 +90,6 @@ namespace adventofcode
             char[,] map = BuildMap(locations);
             DumpTile(map);
 
-            
-
             int rotateCount = 0;
             char[,] mapWithMonsters = map;
             List<string> seaMonster = new List<string>() {

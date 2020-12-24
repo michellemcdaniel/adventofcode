@@ -29,7 +29,7 @@ namespace adventofcode
             nextInput++;
             int[] myTicket = input[nextInput].Split(",").Select(n => int.Parse(n)).ToArray();
 
-            List<int[]> allTickets = new ();
+            List<int[]> allTickets = new();
             List<int> badValue = new();
 
             for(int i = nextInput+3; i < input.Count(); i++)

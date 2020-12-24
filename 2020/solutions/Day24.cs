@@ -63,16 +63,16 @@ namespace adventofcode
                     
                     foreach (var neighbor in Neighbors)
                     {
-                        string key = $"{tile.Row+neighbor.Item1}+{tile.Column+neighbor.Item2}";
-                        if (TileIsBlack(key, tiles))
+                        string neighborKey = $"{tile.Row+neighbor.Item1}+{tile.Column+neighbor.Item2}";
+                        if (TileIsBlack(neighborKey, tiles))
                         {
                             count++;
                         }
-                        else if (tile.Color && keysChecked.Add(key))
+                        else if (tile.Color && keysChecked.Add(neighborKey))
                         {
                             Tile toAdd = new Tile() { Row = tile.Row+neighbor.Item1, Column = tile.Column+neighbor.Item2 };
                             toCheck.Enqueue(toAdd);
-                            tiles[key] = toAdd;
+                            tiles[neighborKey] = toAdd;
                         }
                     }
 

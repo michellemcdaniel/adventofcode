@@ -11,7 +11,6 @@ namespace adventofcode
         public static void Execute(string filename)
         {
             Queue<string> input = new Queue<string>(File.ReadAllLines(filename));
-
             Dictionary<int, string> rules = new();
             List<string> messages = input.Where(i => !i.Contains(":")).ToList();
 

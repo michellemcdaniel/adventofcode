@@ -36,11 +36,7 @@ namespace adventofcode
             {
                 return '.';
             }
-            else if (isActive)
-            {
-                return '#';
-            }
-            else if (!isActive && totalActiveAround == 3)
+            else if (isActive || (!isActive && totalActiveAround == 3))
             {
                 return '#';
             }

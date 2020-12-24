@@ -2,45 +2,31 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Irony.Parsing;
 
 namespace adventofcode
 {
     class Day18
     {
+        public enum Precedence
+        {
+            NoPrecedence,
+            SwappedPrecedence
+        }
         public static void Execute(string filename)
         {
             List<string> input = File.ReadAllLines(filename).ToList();
-
-            long withGrammarNoPrecedence = 0;
-            long withGrammarPrecedence = 0;
 
             long withStackNoPrecedence = 0;
             long withStackAddPrecedence = 0;
 
             foreach(var i in input)
             {
-                withGrammarNoPrecedence += Evaluate(i, Precedence.NoPrecedence);
-                withGrammarPrecedence += Evaluate(i, Precedence.SwappedPrecedence);
-
                 withStackNoPrecedence += StackMath(i, Precedence.NoPrecedence);
                 withStackAddPrecedence += StackMath(i, Precedence.SwappedPrecedence);
             }
 
-            Console.WriteLine($"Part One, grammar: {withGrammarNoPrecedence}");
-            Console.WriteLine($"Part Two, grammar: {withGrammarPrecedence}");
-
             Console.WriteLine($"Part One, stack: {withStackNoPrecedence}");
             Console.WriteLine($"Part Two, stack: {withStackAddPrecedence}");
-        }
-
-        public static long Evaluate(string input, Precedence precedence)
-        {
-            Parser p = new Parser(new AoCGrammar(precedence));
-            var tree = p.Parse(input);
-
-            var root = ((IAoCValueNode) tree.Root.AstNode);
-            return root.Evaluate();
         }
 
         public static long StackMath(string expression, Precedence precedence)
@@ -60,18 +46,7 @@ namespace adventofcode
                         math.Push(new Operation());
                         break;
                     case ')':
-                        long total = 0;
-                        switch (precedence)
-                        {
-                            case Precedence.NoPrecedence:
-                                total = math.Pop().Calculate();
-                                break;
-                            case Precedence.SwappedPrecedence:
-                                total = math.Pop().CalculateWithAddPrecedence();
-                                break;
-                            default: 
-                                throw new ArgumentException($"{precedence} is not a recognized precedence", "precedence");
-                        }
+                        long total = DoMath(math.Pop(), precedence);
                         math.Peek().Values.Add(total);
                         break;
                     default:
@@ -81,12 +56,17 @@ namespace adventofcode
                 }
             }
 
+            return DoMath(math.Pop(), precedence);
+        }
+
+        public static long DoMath(Operation operation, Precedence precedence)
+        {
             switch (precedence)
             {
                 case Precedence.NoPrecedence:
-                    return math.Peek().Calculate();
+                    return operation.Calculate();
                 case Precedence.SwappedPrecedence:
-                    return math.Peek().CalculateWithAddPrecedence();
+                    return operation.CalculateWithAddPrecedence();
                 default: 
                     throw new ArgumentException($"{precedence} is not a recognized precedence", "precedence");
             }
@@ -126,33 +106,20 @@ namespace adventofcode
             {
                 Stack<long> stack = new Stack<long>();
                 stack.Push(0);
-                long currentVal = -1;
 
                 for (int i = 0; i < Values.Count(); i++)
                 {
                     if (Operators[i] == '+')
                     {
-                        currentVal = stack.Pop();
+                        stack.Push(stack.Pop() + Values[i]);
                     }
                     else
                     {
                         stack.Push(Values[i]);
                     }
-                    if (currentVal != -1)
-                    {
-                        stack.Push(currentVal + Values[i]);
-                        currentVal = -1;
-                    }
                 }
 
-                long total = 1;
-
-                while(stack.Any())
-                {
-                    total*=stack.Pop();
-                }
-
-                return total;
+                return stack.Aggregate(1L, (x,y) => x*y);
             }
         }
     }
