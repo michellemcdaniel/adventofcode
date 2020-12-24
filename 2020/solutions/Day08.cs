@@ -18,22 +18,19 @@ namespace adventofcode
             for (int i = 0; i < input.Count(); i++)
             {
                 string original = input[i];
-
-                // not replacing anything in acc instructions, so continue
-                if (input[i].StartsWith("acc"))
-                {
-                    continue;
-                }
-
-                input[i] = input[i].StartsWith("nop") ? input[i].Replace("nop", "jmp") : input[i].Replace("jmp", "nop");
                 
-                if (CheckProgram(input, out accumulator))
+                if (!input[i].StartsWith("acc"))
                 {
-                    Console.WriteLine($"Part Two: {accumulator}");
-                    break;
-                }
+                    input[i] = input[i].StartsWith("nop") ? input[i].Replace("nop", "jmp") : input[i].Replace("jmp", "nop");
+                    
+                    if (CheckProgram(input, out accumulator))
+                    {
+                        Console.WriteLine($"Part Two: {accumulator}");
+                        break;
+                    }
 
-                input[i] = original;
+                    input[i] = original;
+                }
             }
         }
 
