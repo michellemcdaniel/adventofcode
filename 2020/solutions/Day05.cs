@@ -24,8 +24,8 @@ namespace adventofcode
                 emptySeats.Remove(id);
             }
 
-            Console.WriteLine($"Max ID: {maxId}");
-            Console.WriteLine($"Potential Id: {emptySeats.Where(s => s < maxId && s > minId).First()}");
+            Console.WriteLine($"Part One: {maxId}");
+            Console.WriteLine($"Part Two: {emptySeats.Where(s => s < maxId && s > minId).First()}");
         }
     }
 }

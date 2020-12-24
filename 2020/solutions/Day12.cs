@@ -13,7 +13,6 @@ namespace adventofcode
 
             List<(bool, int, int)> moveWayPoints = new List<(bool, int, int)>() { (false, 1, 0), (true, 10, 1) };
 
-            // Part One
             foreach (var waypoint in moveWayPoints)
             {
                 (bool moveWayPoint, int waypointX, int waypointY) = waypoint;

@@ -33,8 +33,8 @@ namespace adventofcode
                 }
             }
 
-            Console.WriteLine($"{problemOnePasswords}/{inputPasswords.Count}");
-            Console.WriteLine($"{problemTwoPasswords}/{inputPasswords.Count}");
+            Console.WriteLine($"Part One: {problemOnePasswords}/{inputPasswords.Count}");
+            Console.WriteLine($"Part Two: {problemTwoPasswords}/{inputPasswords.Count}");
         }
     }
 }

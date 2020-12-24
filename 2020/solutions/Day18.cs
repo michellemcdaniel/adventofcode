@@ -27,11 +27,11 @@ namespace adventofcode
                 withStackAddPrecedence += StackMath(i, Precedence.SwappedPrecedence);
             }
 
-            Console.WriteLine($"Part one, grammar: {withGrammarNoPrecedence}");
-            Console.WriteLine($"Part two, grammar: {withGrammarPrecedence}");
+            Console.WriteLine($"Part One, grammar: {withGrammarNoPrecedence}");
+            Console.WriteLine($"Part Two, grammar: {withGrammarPrecedence}");
 
-            Console.WriteLine($"Part one, stack: {withStackNoPrecedence}");
-            Console.WriteLine($"Part two, stack: {withStackAddPrecedence}");
+            Console.WriteLine($"Part One, stack: {withStackNoPrecedence}");
+            Console.WriteLine($"Part Two, stack: {withStackAddPrecedence}");
         }
 
         public static long Evaluate(string input, Precedence precedence)

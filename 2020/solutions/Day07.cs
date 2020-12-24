@@ -71,8 +71,8 @@ namespace adventofcode
                 }
             }
 
-            Console.WriteLine($"Total bags that can contain shiny gold: {foundColors.Count()}");   
-            Console.WriteLine($"Total bags in a shiny gold: {totalBags}");
+            Console.WriteLine($"Part One: {foundColors.Count()}");   
+            Console.WriteLine($"Part Two: {totalBags}");
         }
 
         class Bag

@@ -39,8 +39,8 @@ namespace adventofcode
                 allAnswered.IntersectWith(currentAnswers);
             }
 
-            Console.WriteLine($"One answered: {totalOneAnswered}");
-            Console.WriteLine($"All answered: {totalAllAnswered}");
+            Console.WriteLine($"Part One: {totalOneAnswered}");
+            Console.WriteLine($"Part Two: {totalAllAnswered}");
         }
     }
 }

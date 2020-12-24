@@ -13,7 +13,7 @@ namespace adventofcode
             int accumulator = 0;
 
             CheckProgram(input, out accumulator);
-            Console.WriteLine($"Part 1: {accumulator}");
+            Console.WriteLine($"Part One: {accumulator}");
 
             for (int i = 0; i < input.Count(); i++)
             {
@@ -29,7 +29,7 @@ namespace adventofcode
                 
                 if (CheckProgram(input, out accumulator))
                 {
-                    Console.WriteLine($"Part 2: {accumulator}");
+                    Console.WriteLine($"Part Two: {accumulator}");
                     break;
                 }
 

@@ -48,11 +48,12 @@ namespace adventofcode
 
             foreach(Slope slope in slopes)
             {
-                Console.WriteLine($"Trees: {slope.Trees}");
+                if (slope.Down == 1 && slope.Right == 3)
+                    Console.WriteLine($"Part One: {slope.Trees}");
                 totalTrees = totalTrees * slope.Trees;
             }
 
-            Console.WriteLine($"Total trees: {totalTrees}");
+            Console.WriteLine($"Part Two: {totalTrees}");
         }
 
         class Slope

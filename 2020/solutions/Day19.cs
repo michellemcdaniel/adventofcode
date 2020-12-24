@@ -32,7 +32,7 @@ namespace adventofcode
                 else notFirst.Add(message);
             }
 
-            Console.WriteLine($"Part one: {count}");
+            Console.WriteLine($"Part One: {count}");
 
             rules[8] = "42 | 42 8";
             rules[11] = "42 31 | 42 11 31";
@@ -52,7 +52,7 @@ namespace adventofcode
                 }
             }
 
-            Console.WriteLine($"Part two: {count}");
+            Console.WriteLine($"Part Two: {count}");
         }
 
         public static bool Matches(string message, List<List<string>> patterns, int maxLength)

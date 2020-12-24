@@ -70,8 +70,8 @@ namespace adventofcode
                 }
             }
 
-            Console.WriteLine($"Passports with all required fields: {checkedPassports}");
-            Console.WriteLine($"Valid Passports: {validatedPassports}");
+            Console.WriteLine($"Part One: {checkedPassports}");
+            Console.WriteLine($"Part Two: {validatedPassports}");
         }
 
         class Passport

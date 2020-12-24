@@ -131,8 +131,8 @@ namespace adventofcode
 
             DumpTile(mapWithMonsters);
 
-            Console.WriteLine($"Part one: {multiplied}");
-            Console.WriteLine($"Part two: {roughWaters}");
+            Console.WriteLine($"Part One: {multiplied}");
+            Console.WriteLine($"Part Two: {roughWaters}");
         }
 
         public class Location

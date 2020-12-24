@@ -20,7 +20,7 @@ namespace adventofcode
 
                 if (processedNumbers.Contains(val))
                 {
-                    Console.WriteLine($"{num} * {val} = {num * val}");
+                    Console.WriteLine($"Part One: {num} * {val} = {num * val}");
                     break;
                 }
                 else
@@ -43,7 +43,7 @@ namespace adventofcode
                         int search = 2020 - (first + second);
                         if (allNumbers.Contains(search))
                         {
-                            Console.WriteLine($"{first} * {second} * {search} = {first * second * search}");
+                            Console.WriteLine($"Part Two: {first} * {second} * {search} = {first * second * search}");
                             found = true;
                             break;
                         }

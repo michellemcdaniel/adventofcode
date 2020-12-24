@@ -24,7 +24,7 @@ namespace adventofcode
                 changed = plane.Generate(CheckRulesFirst, 1);
             }
 
-            Console.WriteLine($"Count: {plane.CountOccupied()}");
+            Console.WriteLine($"Part One: {plane.CountOccupied()}");
 
             plane = new Plane(input);
 
@@ -34,7 +34,7 @@ namespace adventofcode
                 changed = plane.Generate(CheckRulesSecond, Math.Max(input.Count, input.First().Length));
             }
 
-            Console.WriteLine($"Count: {plane.CountOccupied()}");
+            Console.WriteLine($"Part Two: {plane.CountOccupied()}");
         }
 
         public static char CheckRulesFirst(bool isOccupied, int countOccupied)

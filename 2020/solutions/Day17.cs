@@ -18,7 +18,7 @@ namespace adventofcode
                 cube.Generate(CheckRules);
             }
 
-            Console.WriteLine($"Part one: {cube.CountOccupied()}");
+            Console.WriteLine($"Part One: {cube.CountOccupied()}");
 
             HyperCube hyperCube = new HyperCube(0, new Cube(0, new Plane(input)));
             for (int count = 0; count < 6; count++)
@@ -27,7 +27,7 @@ namespace adventofcode
                 hyperCube.Generate(CheckRules);
             }
 
-            Console.WriteLine($"Part two: {hyperCube.CountOccupied()}");
+            Console.WriteLine($"Part Two: {hyperCube.CountOccupied()}");
         }
 
         public static char CheckRules(bool isActive, int totalActiveAround)
