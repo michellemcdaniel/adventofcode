@@ -8,12 +8,16 @@ namespace adventofcode
 {
     class Day24
     {
+        public static List<(int, double)> Neighbors = new List<(int, double)>()
+        {
+            (0,-1), (0,1), (-1,-0.5), (-1, 0.5), (1,-0.5), (1, 0.5)
+        };
         public static void Execute(string filename)
         {
             List<string> input = File.ReadAllLines(filename).ToList();
 
             Dictionary<string, Tile> tiles = new Dictionary<string, Tile>();
-            tiles.Add("0+0", new Tile() {Color = true, Row = 0, Column = 0});
+            tiles.Add("0+0", new Tile() {Row = 0, Column = 0});
 
             foreach(var line in input)
             {
@@ -40,79 +44,82 @@ namespace adventofcode
                 }
                 else
                 {
-                    tiles.Add($"{row}+{col}", new Tile() { Color = false, Row = row, Column = col});
+                    tiles.Add($"{row}+{col}", new Tile() { Color = true, Row = row, Column = col});
                 }
             }
 
-            Console.WriteLine($"Part One: {tiles.Where(kvp => !kvp.Value.Color).Count()}");
-
-            for(int i = -65; i < 67; i++)
-            {
-                for (double j = -54; j < 60; j++)
-                {
-                    double col = 0;
-                    if (i%2 == 0)
-                    {
-                        col = Math.Ceiling(j);
-                    }
-                    else
-                    {
-                        col = j % 1 == 0 ? j+0.5 : j;
-                    }
-
-                    if (j <= 100 && !tiles.ContainsKey($"{i}+{col}"))
-                    {
-                        tiles.Add($"{i}+{col}", new Tile() { Color = true, Row = i, Column = col});
-                    }
-                }
-            }
+            Console.WriteLine($"Part One: {tiles.Where(kvp => kvp.Value.Color).Count()}");
 
             for (int i = 0; i < 100; i++)
             {
-                List<Tile> changedTiles = new List<Tile>();
-                int maxRow = tiles.Where(kvp => !kvp.Value.Color).Select(kvp => kvp.Value.Row).Max()+1;
-                int minRow = tiles.Where(kvp => !kvp.Value.Color).Select(kvp => kvp.Value.Row).Min()-1;
-                double minCol = tiles.Where(kvp => !kvp.Value.Color).Select(kvp => kvp.Value.Column).Min()-1;
-                double maxCol = tiles.Where(kvp => !kvp.Value.Color).Select(kvp => kvp.Value.Column).Max()+1;
+                HashSet<string> changedTiles = new HashSet<string>();
+                Queue<Tile> toCheck = new Queue<Tile>(tiles.Where(kvp => kvp.Value.Color).Select(kvp => kvp.Value));
+                HashSet<string> keysChecked = new HashSet<string>(toCheck.Select(t => $"{t.Row}+{t.Column}"));
 
-                foreach (var kvp in 
-                    tiles.Where(kvp => kvp.Value.Row >= minRow && kvp.Value.Row <= maxRow && kvp.Value.Column >= minCol && kvp.Value.Column <= maxCol))
+                while (toCheck.Any())
                 {
-                    int count = TileIsBlack(kvp.Value.Row, kvp.Value.Column+1, tiles) + 
-                        TileIsBlack(kvp.Value.Row, kvp.Value.Column-1, tiles) + 
-                        TileIsBlack(kvp.Value.Row+1, kvp.Value.Column+0.5, tiles) +
-                        TileIsBlack(kvp.Value.Row-1, kvp.Value.Column+0.5, tiles) +
-                        TileIsBlack(kvp.Value.Row+1, kvp.Value.Column-0.5, tiles) +
-                        TileIsBlack(kvp.Value.Row-1, kvp.Value.Column-0.5, tiles);
-
-                    if ((kvp.Value.Color && count == 2) ||
-                        (!kvp.Value.Color && (count == 0 || count > 2)))
+                    Tile tile = toCheck.Dequeue();
+                    int count = 0;
+                    
+                    foreach (var neighbor in Neighbors)
                     {
-                        changedTiles.Add(new Tile() { Color = !kvp.Value.Color, Row = kvp.Value.Row, Column = kvp.Value.Column });
+                        string key = $"{tile.Row+neighbor.Item1}+{tile.Column+neighbor.Item2}";
+                        if (TileIsBlack(key, tiles))
+                        {
+                            count++;
+                        }
+                        else if (tile.Color && keysChecked.Add(key))
+                        {
+                            Tile toAdd = new Tile() { Row = tile.Row+neighbor.Item1, Column = tile.Column+neighbor.Item2 };
+                            toCheck.Enqueue(toAdd);
+                            tiles[key] = toAdd;
+                        }
+                    }
+
+                    if ((!tile.Color && count == 2) ||
+                        (tile.Color && (count == 0 || count > 2)))
+                    {
+                        changedTiles.Add($"{tile.Row}+{tile.Column}");
                     }
                 }
 
                 foreach(var tile in changedTiles)
                 {
-                    tiles[$"{tile.Row}+{tile.Column}"] = tile;
+                    tiles[tile].Color = !tiles[tile].Color;
                 }
             }
 
-            Console.WriteLine($"Part Two: {tiles.Where(kvp => !kvp.Value.Color).Count()}");
+            Console.WriteLine($"Part Two: {tiles.Where(kvp => kvp.Value.Color).Count()}");
         }
 
-        public static int TileIsBlack(int row, double col, Dictionary<string, Tile> tiles)
+        public static bool TileIsBlack(string key, Dictionary<string, Tile> tiles)
         {
-            if (tiles.TryGetValue($"{row}+{col}", out Tile tile))
+            if (tiles.TryGetValue(key, out Tile tile))
             {
-                return tile.Color ? 0 : 1;
+                return tile.Color;
             }
-            return 0;
+            return false;
+        }
+
+        public static void DumpGrid(List<Tile> tiles)
+        {
+            for(int i = tiles.Select(t => t.Row).Min(); i <= tiles.Select(t => t.Row).Max(); i++)
+            {
+                for (double j = tiles.Select (t => t.Column * 2).Min(); j <= tiles.Select(t => t.Column * 2).Max(); j+=1)
+                {
+                    Tile tile = tiles.FirstOrDefault(t => t.Row == i && t.Column*2 == j);
+                    if (tile != null && tile.Color) Console.Write("#");
+                    else if (tile != null && !tile.Color) Console.Write(".");
+                    else Console.Write(" ");
+                }
+                Console.WriteLine();
+            }
+            Console.WriteLine();
         }
 
         public class Tile
         {
-            public bool Color { get; set; } // black = false; white = true
+            public bool Color { get; set; } // white = false; black = true
             public int Row { get; set; }
             public double Column { get; set; }
         }
