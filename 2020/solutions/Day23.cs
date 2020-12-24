@@ -10,7 +10,7 @@ namespace adventofcode
     {
         public static void Execute(string filename)
         {
-            List<int> order = new List<int>() { 6, 5, 3, 4, 2, 7, 9, 1, 8 };
+            List<int> order = File.ReadAllText(filename).ToCharArray().Select(i => int.Parse(i.ToString())).ToList();
 
             Dictionary<int, Cup> cupMap = SetupGame(order); 
             cupMap = PlayGame(100, cupMap, order[0]);

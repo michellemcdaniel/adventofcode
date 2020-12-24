@@ -9,7 +9,7 @@ namespace adventofcode
     {
         public static void Execute(string filename)
         {
-            List<int> input = File.ReadAllLines(filename)[0].Split(",").Select(n => int.Parse(n)).ToList();
+            List<int> input = File.ReadAllText(filename).Split(",").Select(n => int.Parse(n)).ToList();
 
             Dictionary<long, long> numbers = new Dictionary<long, long>();
 
