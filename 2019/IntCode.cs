@@ -9,7 +9,12 @@ namespace adventofcode
     {
         public long[] Opcodes { get; }
         public bool Halted { get; set; }
+        public bool Paused { get; set; }
+        public long InstructionPointer { get; set; }
         public long RelativeBase { get; set; }
+
+        public bool Pause { get; set; }
+        public Queue<long> Input { get; set; }
 
         public IntCode(long[] opcodes)
         {
@@ -19,6 +24,13 @@ namespace adventofcode
                 Opcodes[i] = opcodes[i];
             }
             RelativeBase = 0;
+            InstructionPointer = 0;
+            Input = new Queue<long>();
+        }
+
+        public IntCode(long[] opcode, bool pause) : this(opcode)
+        {
+            Pause = pause;
         }
 
         public long GetParameter(long location, long mode)
@@ -41,10 +53,15 @@ namespace adventofcode
             return location;
         }
 
-        public Queue<long> Compute(Queue<long> input)
+        public void Resume(long input)
         {
-            long currentOpcode = Opcodes[0];
-            long currentLocation = 0;
+            Input.Enqueue(input);
+            Paused = false;
+        }
+
+        public long ComputeResult()
+        {
+            long currentOpcode = Opcodes[InstructionPointer];
             long replaceLocation = 0;
             long firstInput = 0;
             long secondInput = 0;
@@ -52,67 +69,70 @@ namespace adventofcode
             long condition = 0;
             long jumpLocation = 0;
 
-            Queue<long> currentInput = input;
-
-            while(currentOpcode != 99 && currentLocation < Opcodes.Length)
+            while(!Halted && !Paused && InstructionPointer < Opcodes.Length)
             {
                 Instruction inst = new Instruction(currentOpcode);
                 switch (inst.Opcode)
                 {
                     case 1:
-                        replaceLocation = GetParameter(currentLocation+3, inst.ThirdParameterMode);
-                        firstInput = GetParameter(currentLocation+1, inst.FirstParameterMode);
-                        secondInput = GetParameter(currentLocation+2, inst.SecondParameterMode);
+                        replaceLocation = GetParameter(InstructionPointer+3, inst.ThirdParameterMode);
+                        firstInput = GetParameter(InstructionPointer+1, inst.FirstParameterMode);
+                        secondInput = GetParameter(InstructionPointer+2, inst.SecondParameterMode);
 
                         Opcodes[replaceLocation] = Opcodes[firstInput] + Opcodes[secondInput];
-                        currentLocation = currentLocation+4;
+                        InstructionPointer = InstructionPointer+4;
                         break;
                     case 2:
-                        replaceLocation = GetParameter(currentLocation+3, inst.ThirdParameterMode);
-                        firstInput = GetParameter(currentLocation+1, inst.FirstParameterMode);
-                        secondInput = GetParameter(currentLocation+2, inst.SecondParameterMode);
+                        replaceLocation = GetParameter(InstructionPointer+3, inst.ThirdParameterMode);
+                        firstInput = GetParameter(InstructionPointer+1, inst.FirstParameterMode);
+                        secondInput = GetParameter(InstructionPointer+2, inst.SecondParameterMode);
 
                         Opcodes[replaceLocation] = Opcodes[firstInput] * Opcodes[secondInput];
-                        currentLocation = currentLocation+4;
+                        InstructionPointer = InstructionPointer+4;
                         break;
                     case 3: 
-                        replaceLocation = GetParameter(currentLocation+1, inst.FirstParameterMode);
-                        Opcodes[replaceLocation] = currentInput.Dequeue();
-                        currentLocation = currentLocation+2;
+                        replaceLocation = GetParameter(InstructionPointer+1, inst.FirstParameterMode);
+                        Opcodes[replaceLocation] = Input.Dequeue();
+                        InstructionPointer = InstructionPointer+2;
                         break;
                     case 4:
-                        replaceLocation = GetParameter(currentLocation+1, inst.FirstParameterMode);
-                        currentInput.Enqueue(Opcodes[replaceLocation]);
-                        currentLocation = currentLocation+2;
+                        replaceLocation = GetParameter(InstructionPointer+1, inst.FirstParameterMode);
+                        if (Pause)
+                        {
+                            Paused = true;
+                        }
+
+                        Input.Enqueue(Opcodes[replaceLocation]);
+                        InstructionPointer = InstructionPointer+2;
                         break;
                     case 5:
-                        condition = GetParameter(currentLocation+1, inst.FirstParameterMode);
-                        jumpLocation = GetParameter(currentLocation+2, inst.SecondParameterMode);
+                        condition = GetParameter(InstructionPointer+1, inst.FirstParameterMode);
+                        jumpLocation = GetParameter(InstructionPointer+2, inst.SecondParameterMode);
                         if (Opcodes[condition] != 0)
                         {
-                            currentLocation = Opcodes[jumpLocation];
+                            InstructionPointer = Opcodes[jumpLocation];
                         }
                         else 
                         {
-                            currentLocation = currentLocation+3;
+                            InstructionPointer = InstructionPointer+3;
                         }
                         break;
                     case 6:
-                        condition = GetParameter(currentLocation+1, inst.FirstParameterMode);
-                        jumpLocation = GetParameter(currentLocation+2, inst.SecondParameterMode);
+                        condition = GetParameter(InstructionPointer+1, inst.FirstParameterMode);
+                        jumpLocation = GetParameter(InstructionPointer+2, inst.SecondParameterMode);
                         if (Opcodes[condition] == 0)
                         {
-                            currentLocation = Opcodes[jumpLocation];
+                            InstructionPointer = Opcodes[jumpLocation];
                         }
                         else 
                         {
-                            currentLocation = currentLocation+3;
+                            InstructionPointer = InstructionPointer+3;
                         }
                         break;
                     case 7:
-                        firstInput = GetParameter(currentLocation+1, inst.FirstParameterMode);
-                        secondInput = GetParameter(currentLocation+2, inst.SecondParameterMode);
-                        replaceLocation = GetParameter(currentLocation+3, inst.ThirdParameterMode);
+                        firstInput = GetParameter(InstructionPointer+1, inst.FirstParameterMode);
+                        secondInput = GetParameter(InstructionPointer+2, inst.SecondParameterMode);
+                        replaceLocation = GetParameter(InstructionPointer+3, inst.ThirdParameterMode);
 
                         if (Opcodes[firstInput] < Opcodes[secondInput])
                         {
@@ -122,12 +142,12 @@ namespace adventofcode
                         {
                             Opcodes[replaceLocation] = 0;
                         }
-                        currentLocation = currentLocation+4;
+                        InstructionPointer = InstructionPointer+4;
                         break;
                     case 8:
-                        firstInput = GetParameter(currentLocation+1, inst.FirstParameterMode);
-                        secondInput = GetParameter(currentLocation+2, inst.SecondParameterMode);
-                        replaceLocation = GetParameter(currentLocation+3, inst.ThirdParameterMode);
+                        firstInput = GetParameter(InstructionPointer+1, inst.FirstParameterMode);
+                        secondInput = GetParameter(InstructionPointer+2, inst.SecondParameterMode);
+                        replaceLocation = GetParameter(InstructionPointer+3, inst.ThirdParameterMode);
 
                         if (Opcodes[firstInput] == Opcodes[secondInput])
                         {
@@ -137,47 +157,46 @@ namespace adventofcode
                         {
                             Opcodes[replaceLocation] = 0;
                         }
-                        currentLocation = currentLocation+4;
+                        InstructionPointer = InstructionPointer+4;
                         break;
                     case 9:
-                        firstInput = GetParameter(currentLocation+1, inst.FirstParameterMode);
+                        firstInput = GetParameter(InstructionPointer+1, inst.FirstParameterMode);
                         RelativeBase += Opcodes[firstInput];
-                        currentLocation = currentLocation+2;
+                        InstructionPointer = InstructionPointer+2;
                         break;
                     default:
                         break;
                 }
                 
-                currentOpcode = Opcodes[currentLocation];
+                currentOpcode = Opcodes[InstructionPointer];
+                if (Opcodes[InstructionPointer] == 99)
+                {
+                    Halted = true;
+                }
             }
 
-            if (currentLocation < Opcodes.Length)
-            {
-                Halted = true;
-            }
-
-            return currentInput;
+            if (Input.Any())
+                return Input.Dequeue();
+            else return 0;
         }
 
-        public Queue<long> Compute()
+        public long Compute()
         {
-            return Compute(new Queue<long>());
+            return ComputeResult();
         }
 
-        public Queue<long> Compute(long input)
+        public long Compute(long input)
         {
-            Queue<long> inputQueue = new Queue<long>();
-            inputQueue.Enqueue(input);
-            return Compute(inputQueue);
+            Input.Enqueue(input);
+            return ComputeResult();
         }
 
-        public Queue<long> Compute(long input, long phase)
+        public long Compute(long input, long phase)
         {
-            Queue<long> inputQueue = new Queue<long>();
-            inputQueue.Enqueue(phase);
-            inputQueue.Enqueue(input);
+            Input.Enqueue(phase);
+            Input.Enqueue(input);
 
-            return Compute(inputQueue);
+            return ComputeResult();
         }
     }
 

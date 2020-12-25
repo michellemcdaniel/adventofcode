@@ -9,7 +9,7 @@ namespace adventofcode
     {
         public static void Execute()
         {
-            List<string> input = File.ReadAllLines(Path.Combine(Environment.CurrentDirectory, "input", "day07-sample.txt")).ToList();
+            string intcode = File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "input", "day07.txt"));
 
             List<List<int>> permutations = GetPermutations(new List<int>{5,6,7,8,9});
 
@@ -18,46 +18,38 @@ namespace adventofcode
 
             foreach(var permutation in permutations)
             {
-                foreach(string intcode in input)
+                List<IntCode> intCodes = new List<IntCode>()
                 {
-                    List<IntCode> intCodes = new List<IntCode>()
+                    new IntCode(intcode.Split(",").ToList().Select(o => long.Parse(o)).ToArray(), true),
+                    new IntCode(intcode.Split(",").ToList().Select(o => long.Parse(o)).ToArray(), true),
+                    new IntCode(intcode.Split(",").ToList().Select(o => long.Parse(o)).ToArray(), true),
+                    new IntCode(intcode.Split(",").ToList().Select(o => long.Parse(o)).ToArray(), true),
+                    new IntCode(intcode.Split(",").ToList().Select(o => long.Parse(o)).ToArray(), true)
+                };
+
+                long inputToIntCode = 0;
+
+                for (int i = 0; i < permutation.Count; i++)
+                {
+                    inputToIntCode = intCodes[i].Compute(inputToIntCode, permutation[i]);
+                }
+
+                int iterations = 0;
+
+                while (!intCodes.Last().Halted)
+                {
+                    for(int i = 0; i < intCodes.Count; i++)
                     {
-                        new IntCode(intcode.Split(",").ToList().Select(o => long.Parse(o)).ToArray()),
-                        new IntCode(intcode.Split(",").ToList().Select(o => long.Parse(o)).ToArray()),
-                        new IntCode(intcode.Split(",").ToList().Select(o => long.Parse(o)).ToArray()),
-                        new IntCode(intcode.Split(",").ToList().Select(o => long.Parse(o)).ToArray()),
-                        new IntCode(intcode.Split(",").ToList().Select(o => long.Parse(o)).ToArray())
-                    };
-
-                    Queue<long> inputToIntCode = new Queue<long>();
-                    inputToIntCode.Enqueue(0);
-                    long startInput = 0;
-
-                    while (true)
-                    {
-                        for (int i = 0; i < permutation.Count; i++)
-                        {
-                            startInput = inputToIntCode.Dequeue();
-                            inputToIntCode = intCodes[i].Compute(startInput, permutation[i]);
-                        }
-
-                        if(inputToIntCode.Count == 1)
-                        {
-                            break;
-                        }
-
-                        for(int i = 0; i < permutation.Count; i++)
-                        {
-                            inputToIntCode = intCodes[i].Compute(inputToIntCode);
-                        }
+                        intCodes[i].Resume(inputToIntCode);
+                        inputToIntCode = intCodes[i].ComputeResult();
                     }
+                    iterations++;
+                }
 
-                    long output = inputToIntCode.Dequeue();
-                    if (output > maxOutput)
-                    {
-                        maxOutput = output;
-                        maxPermutation = permutation;
-                    }
+                if (inputToIntCode > maxOutput)
+                {
+                    maxOutput = inputToIntCode;
+                    maxPermutation = permutation;
                 }
             }
 

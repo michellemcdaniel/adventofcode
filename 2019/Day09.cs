@@ -15,12 +15,9 @@ namespace adventofcode
 
             IntCode intCode = new IntCode(inputString.Split(",").ToList().Select(o => long.Parse(o)).ToArray());
 
-            Queue<long> result = intCode.Compute(2);
+            long result = intCode.Compute(2);
 
-            while(result.Any())
-            {
-                Console.Write($"{result.Dequeue()},");
-            }
+            Console.Write($"{result}");
             Console.WriteLine();
         }
     }

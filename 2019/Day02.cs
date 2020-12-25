@@ -13,7 +13,6 @@ namespace adventofcode
 
             foreach(string intcode in input)
             {
-                bool found = false;
                 for (int noun = 0; noun < 100; noun++)
                 {
                     for (int verb = 0; verb < 100; verb++)
@@ -29,14 +28,8 @@ namespace adventofcode
                         if (intCode.Opcodes[0] == 19690720)
                         {
                             Console.WriteLine($"100 * {noun} + {verb} = {100*noun + verb}");
-                            found = true;
-                            break;
+                            return;
                         }
-                    }
-
-                    if (found)
-                    {
-                        break;
                     }
                 }
             }
