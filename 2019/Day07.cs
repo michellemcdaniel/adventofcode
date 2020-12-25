@@ -11,50 +11,67 @@ namespace adventofcode
         {
             string intcode = File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "input", "day07.txt"));
 
-            List<List<int>> permutations = GetPermutations(new List<int>{5,6,7,8,9});
-
+            List<List<int>> permutations = GetPermutations(new List<int>{0,1,2,3,4});
             long maxOutput = long.MinValue;
             List<int> maxPermutation = new List<int>();
 
-            foreach(var permutation in permutations)
+            foreach (var permutation in permutations)
             {
-                List<IntCode> intCodes = new List<IntCode>()
+                long output = CalculateOutput(permutation, intcode, false);
+
+                if (output > maxOutput)
                 {
-                    new IntCode(intcode.Split(",").ToList().Select(o => long.Parse(o)).ToArray(), true),
-                    new IntCode(intcode.Split(",").ToList().Select(o => long.Parse(o)).ToArray(), true),
-                    new IntCode(intcode.Split(",").ToList().Select(o => long.Parse(o)).ToArray(), true),
-                    new IntCode(intcode.Split(",").ToList().Select(o => long.Parse(o)).ToArray(), true),
-                    new IntCode(intcode.Split(",").ToList().Select(o => long.Parse(o)).ToArray(), true)
-                };
-
-                long inputToIntCode = 0;
-
-                for (int i = 0; i < permutation.Count; i++)
-                {
-                    inputToIntCode = intCodes[i].Compute(inputToIntCode, permutation[i]);
-                }
-
-                int iterations = 0;
-
-                while (!intCodes.Last().Halted)
-                {
-                    for(int i = 0; i < intCodes.Count; i++)
-                    {
-                        intCodes[i].Resume(inputToIntCode);
-                        inputToIntCode = intCodes[i].ComputeResult();
-                    }
-                    iterations++;
-                }
-
-                if (inputToIntCode > maxOutput)
-                {
-                    maxOutput = inputToIntCode;
-                    maxPermutation = permutation;
+                    maxOutput = output;
                 }
             }
 
-            Console.WriteLine($"Max ouptut: {maxOutput}");
-            Console.WriteLine(string.Join(",", maxPermutation));
+            Console.WriteLine($"Part one: {maxOutput}");
+
+            permutations = GetPermutations(new List<int>{5,6,7,8,9});
+            maxOutput = long.MinValue;
+            maxPermutation = new List<int>();
+
+            foreach(var permutation in permutations)
+            {
+                long output = CalculateOutput(permutation, intcode, true);
+
+                if (output > maxOutput)
+                {
+                    maxOutput = output;
+                }
+            }
+
+            Console.WriteLine($"Part Two: {maxOutput}");
+        }
+
+        public static long CalculateOutput(List<int> permutation, string intcode, bool pause)
+        {
+            List<IntCode> intCodes = new List<IntCode>()
+            {
+                new IntCode(intcode.Split(",").ToList().Select(o => long.Parse(o)).ToArray(), pause),
+                new IntCode(intcode.Split(",").ToList().Select(o => long.Parse(o)).ToArray(), pause),
+                new IntCode(intcode.Split(",").ToList().Select(o => long.Parse(o)).ToArray(), pause),
+                new IntCode(intcode.Split(",").ToList().Select(o => long.Parse(o)).ToArray(), pause),
+                new IntCode(intcode.Split(",").ToList().Select(o => long.Parse(o)).ToArray(), pause)
+            };
+
+            long inputToIntCode = 0;
+
+            for (int i = 0; i < permutation.Count; i++)
+            {
+                inputToIntCode = intCodes[i].Compute(inputToIntCode, permutation[i]);
+            }
+
+            while (!intCodes.Last().Halted)
+            {
+                for(int i = 0; i < intCodes.Count; i++)
+                {
+                    intCodes[i].Resume(inputToIntCode);
+                    inputToIntCode = intCodes[i].ComputeResult();
+                }
+            }
+            
+            return inputToIntCode;
         }
 
         public static List<List<int>> GetPermutations(List<int> startList)
