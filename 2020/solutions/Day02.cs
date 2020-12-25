@@ -19,14 +19,12 @@ namespace adventofcode
             foreach (var input in inputPasswords)
             {
                 RegexHelper.Match(input, pattern, out int min, out int max, out char letter, out string password);
-
                 int countRequired = RegexHelper.Matches(password, letter.ToString());
 
                 if (countRequired >= min && countRequired <= max)
                 {
                     problemOnePasswords++;
                 }
-
                 if (password[min-1] == letter ^ password[max-1] == letter)
                 {
                     problemTwoPasswords++;
