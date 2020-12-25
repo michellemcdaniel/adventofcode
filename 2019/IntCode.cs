@@ -12,7 +12,6 @@ namespace adventofcode
         public bool Paused { get; set; }
         public long InstructionPointer { get; set; }
         public long RelativeBase { get; set; }
-
         public bool Pause { get; set; }
         public Queue<long> Input { get; set; }
 
@@ -175,9 +174,13 @@ namespace adventofcode
                 }
             }
 
-            if (Input.Any())
-                return Input.Dequeue();
-            else return 0;
+            long returnValue = 0;
+
+            while (Input.Any())
+            {
+                returnValue = Input.Dequeue();
+            }
+            return returnValue;
         }
 
         public long Compute()

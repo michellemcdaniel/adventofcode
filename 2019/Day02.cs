@@ -25,9 +25,14 @@ namespace adventofcode
                         IntCode intCode = new IntCode(opcodes);
                         intCode.Compute();
 
+                        if (noun == 12 && verb == 2)
+                        {
+                            Console.WriteLine($"Part One: {intCode.Opcodes[0]}");
+                        }
+
                         if (intCode.Opcodes[0] == 19690720)
                         {
-                            Console.WriteLine($"100 * {noun} + {verb} = {100*noun + verb}");
+                            Console.WriteLine($"Part Two: 100 * {noun} + {verb} = {100*noun + verb}");
                             return;
                         }
                     }
