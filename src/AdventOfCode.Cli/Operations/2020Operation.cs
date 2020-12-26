@@ -103,8 +103,7 @@ namespace AdventOfCode.Cli.Operations
                     Day25.Execute(filename);
                     break;
                 default:
-                    Console.WriteLine($"Day {_options.Day} does not have a corresponding puzzle.");
-                    break;
+                    throw new ArgumentException($"Day {_options.Day} is outside the scope of Advent of Code.", "--day");
             }
         }
     }

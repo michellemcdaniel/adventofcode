@@ -63,9 +63,22 @@ namespace AdventOfCode.Cli.Operations
                 case 12:
                     Day12.Execute(filename);
                     break;
+                case 13:
+                case 14:
+                case 15:
+                case 16:
+                case 17:
+                case 18:
+                case 19:
+                case 20:
+                case 21:
+                case 22:
+                case 23:
+                case 24:
+                case 25:
+                    throw new NotImplementedException($"Day {_options.Day} is not implemented yet.");
                 default:
-                    Console.WriteLine($"Day {_options.Day} does not have a corresponding puzzle.");
-                    break;
+                    throw new ArgumentException($"Day {_options.Day} is outside the scope of Advent of Code.", "--day");
             }
         }
     }
