@@ -7,9 +7,9 @@ namespace adventofcode
 {
     class Day01
     {
-        public static void Execute()
+        public static void Execute(string filename)
         {
-            List<string> input = File.ReadAllLines(Path.Combine(Environment.CurrentDirectory, "input", "day01.txt")).ToList();
+            List<string> input = File.ReadAllLines(filename).ToList();
 
             long totalFuel = 0;
             foreach(string module in input)

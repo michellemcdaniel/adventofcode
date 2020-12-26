@@ -15,9 +15,9 @@ namespace adventofcode
             Right
         }
 
-        public static void Execute()
+        public static void Execute(string filename)
         {
-            string input = File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "input", "day11.txt"));
+            string input = File.ReadAllText(filename);
 
             Dictionary<(int, int), long> panels = Paint(0,input,out int count);
 

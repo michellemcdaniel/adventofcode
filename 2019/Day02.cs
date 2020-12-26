@@ -7,9 +7,9 @@ namespace adventofcode
 {
     class Day02
     {
-        public static void Execute()
+        public static void Execute(string filename)
         {
-            List<string> input = File.ReadAllLines(Path.Combine(Environment.CurrentDirectory, "input", "day02.txt")).ToList();
+            List<string> input = File.ReadAllLines(filename).ToList();
 
             foreach(string intcode in input)
             {

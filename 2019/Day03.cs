@@ -7,9 +7,9 @@ namespace adventofcode
 {
     class Day03
     {
-        public static void Execute()
+        public static void Execute(string filename)
         {
-            List<string> input = File.ReadAllLines(Path.Combine(Environment.CurrentDirectory, "input", "day03.txt")).ToList();
+            List<string> input = File.ReadAllLines(filename).ToList();
 
             string[] firstWire = input.ElementAt(0).Split(",");
             string[] secondWire = input.ElementAt(1).Split(",");

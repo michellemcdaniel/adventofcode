@@ -7,9 +7,9 @@ namespace adventofcode
 {
     class Day06
     {
-        public static void Execute()
+        public static void Execute(string filename)
         {
-            List<string> input = File.ReadAllLines(Path.Combine(Environment.CurrentDirectory, "input", "day06.txt")).ToList();
+            List<string> input = File.ReadAllLines(filename).ToList();
             List<ObjectInSpace> objectsInSpace = new List<ObjectInSpace>();
             
             foreach (string orbit in input)

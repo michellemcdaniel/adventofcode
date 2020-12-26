@@ -7,9 +7,9 @@ namespace adventofcode
 {
     class Day07
     {
-        public static void Execute()
+        public static void Execute(string filename)
         {
-            string intcode = File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "input", "day07.txt"));
+            string intcode = File.ReadAllText(filename);
 
             List<List<int>> permutations = GetPermutations(new List<int>{0,1,2,3,4});
             long maxOutput = long.MinValue;

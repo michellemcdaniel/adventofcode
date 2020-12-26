@@ -8,7 +8,7 @@ namespace adventofcode
 {
     class Day04
     {
-        public static void Execute()
+        public static void Execute(string filename)
         {
             int inputMin = 134792;
             int inputMax = 675810;

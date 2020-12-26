@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Linq;
 
 namespace adventofcode
 {
@@ -13,41 +15,49 @@ namespace adventofcode
             }
             
             int day = Convert.ToInt32(args[0]);
+            string sample = "";
+
+            if (args.Contains("sample"))
+            {
+                sample = "-sample";
+            }
+
+            string filename = Path.Combine(Environment.CurrentDirectory, "input", $"day{day.ToString("D2")}{sample}.txt");
 
             switch (day)
             {
                 case 1:
-                    Day01.Execute();
+                    Day01.Execute(filename);
                     break;
                 case 2:
-                    Day02.Execute();
+                    Day02.Execute(filename);
                     break;
                 case 3:
-                    Day03.Execute();
+                    Day03.Execute(filename);
                     break;
                 case 4:
-                    Day04.Execute();
+                    Day04.Execute(filename);
                     break;
                 case 5:
-                    Day05.Execute();
+                    Day05.Execute(filename);
                     break;
                 case 6:
-                    Day06.Execute();
+                    Day06.Execute(filename);
                     break;
                 case 7:
-                    Day07.Execute();
+                    Day07.Execute(filename);
                     break;
                 case 8:
-                    Day08.Execute();
+                    Day08.Execute(filename);
                     break;
                 case 9:
-                    Day09.Execute();
+                    Day09.Execute(filename);
                     break;
                 case 10:
-                    Day10.Execute();
+                    Day10.Execute(filename);
                     break;
                 case 11:
-                    Day11.Execute();
+                    Day11.Execute(filename);
                     break;
                 default:
                     Console.WriteLine($"Day {day} does not have a corresponding puzzle.");
