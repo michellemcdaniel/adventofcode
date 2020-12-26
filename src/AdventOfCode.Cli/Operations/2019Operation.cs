@@ -67,6 +67,8 @@ namespace AdventOfCode.Cli.Operations
                     Day13.Execute(filename);
                     break;
                 case 14:
+                    Day14.Execute(filename);
+                    break;
                 case 15:
                 case 16:
                 case 17:
