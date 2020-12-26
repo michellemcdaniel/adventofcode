@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 
-namespace adventofcode
+namespace AdventOfCode.Nineteen
 {
     class Program
     {

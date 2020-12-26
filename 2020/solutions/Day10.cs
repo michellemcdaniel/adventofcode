@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace adventofcode
+namespace AdventOfCode.Twenty
 {
     class Day10
     {

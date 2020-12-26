@@ -1,7 +1,7 @@
 using System;
 using System.Text.RegularExpressions;
 
-namespace adventofcode
+namespace AdventOfCode.Nineteen
 {
     public static class RegexHelper
     {
