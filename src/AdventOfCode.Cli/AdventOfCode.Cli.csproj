@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../AdventOfCode.2020/AdventOfCode.2020.csproj" />
+    <ProjectReference Include="../AdventOfCode.2019/AdventOfCode.2019.csproj" />
+  </ItemGroup>
+
+</Project>
