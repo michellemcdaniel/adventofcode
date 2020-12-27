@@ -45,13 +45,14 @@ namespace AdventOfCode.Nineteen
             // Do a binary search.
             long targetOre = 1_000_000_000_000;
             long min = 1_000;
-            long max = 1_000_000_000;
+            long max = 1_500_000;
             long currentFuel = 0;
 
             while (min < max)
             {
                 currentFuel = (min+max)/2;
                 double result = DFS(fuel, currentFuel, reactions);
+                Console.WriteLine($"Current total ore used {currentFuel} {result}");
                 if (result > targetOre)
                 {
                     max = currentFuel;
