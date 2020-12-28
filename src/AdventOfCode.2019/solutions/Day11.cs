@@ -34,8 +34,6 @@ namespace AdventOfCode.Nineteen
             int minCol = panels.Keys.Select(k => k.Item2).Min();
             int maxCol = panels.Keys.Select(k => k.Item2).Max();
 
-            Console.WriteLine($"{minRow}:{maxRow},{minCol}:{maxCol}");
-
             for(int i = minRow; i <= maxRow; i++)
             {
                 for(int j = minCol; j <= maxCol; j++)
@@ -75,11 +73,9 @@ namespace AdventOfCode.Nineteen
             
             while (!intCode.Halted)
             {
-                long output = 0;
-                while(!intCode.Paused && !intCode.Halted)
-                {
-                    output = intCode.Compute(panels[(x,y)]);
-                }
+                intCode.Resume(panels[(x,y)]);
+                long output = intCode.Compute();
+
                 if (paint)
                 {
                     panels[(x,y)] = output;
@@ -119,8 +115,6 @@ namespace AdventOfCode.Nineteen
                     }
                     paint = true;
                 }
-
-                intCode.Paused = false;
             }
 
             return panels;

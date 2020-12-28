@@ -48,13 +48,10 @@ namespace AdventOfCode.Nineteen
 
             while(!intCode.Halted)
             {
-                long output = 0;
                 joyStick = ballPosition.CompareTo(paddlePosition);
 
-                while(!intCode.Paused && !intCode.Halted)
-                {
-                    output = intCode.Compute(joyStick);
-                }
+                intCode.Resume(joyStick);
+                long output = intCode.Compute();
                 
                 switch(iterations%3)
                 {
@@ -87,7 +84,6 @@ namespace AdventOfCode.Nineteen
                         break;
                 }
                 iterations++;
-                intCode.Paused = false;
             }
 
             return currentScore;
