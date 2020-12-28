@@ -10,6 +10,7 @@ namespace AdventOfCode.Nineteen
         public long[] Opcodes { get; }
         public bool Halted { get; set; }
         public bool Paused { get; set; }
+        public bool EmptyQueue { get; set; }
         public long InstructionPointer { get; set; }
         public long RelativeBase { get; set; }
         public bool Pause { get; set; }
@@ -30,6 +31,11 @@ namespace AdventOfCode.Nineteen
         public IntCode(long[] opcode, bool pause) : this(opcode)
         {
             Pause = pause;
+        }
+
+        public IntCode(long[] opcode, bool pause, bool empty) : this(opcode, pause)
+        {
+            EmptyQueue = empty;
         }
 
         public long GetParameter(long location, long mode)
@@ -55,6 +61,20 @@ namespace AdventOfCode.Nineteen
         public void Resume(long input)
         {
             Input.Enqueue(input);
+            Paused = false;
+        }
+
+        public void Resume()
+        {
+            Paused = false;
+        }
+
+        public void Resume(List<int> input)
+        {
+            foreach (var i in input)
+            {
+                Input.Enqueue(i);
+            }
             Paused = false;
         }
 
@@ -96,6 +116,7 @@ namespace AdventOfCode.Nineteen
                         break;
                     case 4:
                         replaceLocation = GetParameter(InstructionPointer+1, inst.FirstParameterMode);
+
                         if (Pause)
                         {
                             Paused = true;
@@ -176,10 +197,19 @@ namespace AdventOfCode.Nineteen
 
             long returnValue = 0;
 
-            while (Input.Any())
+            // Trying to make this work for day 7 and everything else.
+            if (Input.Count() == 1 || EmptyQueue)
             {
-                returnValue = Input.Dequeue();
+                while (Input.Any())
+                {
+                    returnValue = Input.Dequeue();
+                }
             }
+            else if (Input.Any())
+            {
+                return Input.Last();
+            }
+            
             return returnValue;
         }
 

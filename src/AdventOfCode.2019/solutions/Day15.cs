@@ -28,7 +28,7 @@ namespace AdventOfCode.Nineteen
         {
             string input = File.ReadAllText(filename);
 
-            IntCode intCode = new IntCode(input.Split(",").ToList().Select(o => long.Parse(o)).ToArray(), true);
+            IntCode intCode = new IntCode(input.Split(",").ToList().Select(o => long.Parse(o)).ToArray(), true, true);
             Dictionary<(int, int), Location> floorplan = new();
             floorplan.Add((0,0), new Location() { Status = Status.Empty, Neighbors = 0 });
 

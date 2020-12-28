@@ -20,7 +20,7 @@ namespace AdventOfCode.Nineteen
         {
             string input = File.ReadAllText(filename);
 
-            IntCode intCode = new IntCode(input.Split(",").ToList().Select(o => long.Parse(o)).ToArray(), true);
+            IntCode intCode = new IntCode(input.Split(",").ToList().Select(o => long.Parse(o)).ToArray(), true, true);
             Dictionary<(long, long), TileId> tiles = new();
             
             long score = PlayGame(intCode, tiles);
@@ -28,7 +28,7 @@ namespace AdventOfCode.Nineteen
             int count = tiles.Where(kvp => kvp.Value == TileId.Block).Count();
             Console.WriteLine($"Part One: {count}");
 
-            intCode = new IntCode(input.Split(",").ToList().Select(o => long.Parse(o)).ToArray(), true);
+            intCode = new IntCode(input.Split(",").ToList().Select(o => long.Parse(o)).ToArray(), true, true);
             intCode.Opcodes[0] = 2;
             tiles = new();
             long currentScore = PlayGame(intCode, tiles);
