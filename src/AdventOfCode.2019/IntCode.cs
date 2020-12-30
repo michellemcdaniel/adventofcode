@@ -7,7 +7,8 @@ namespace AdventOfCode.Nineteen
 {
     public class IntCode
     {
-        public long[] Opcodes { get; }
+        public long[] Opcodes { get; set;}
+        public long[] OriginalOpcodes {get;set;}
         public bool Halted { get; set; }
         public bool Paused { get; set; }
         public bool EmptyQueue { get; set; }
@@ -19,6 +20,7 @@ namespace AdventOfCode.Nineteen
         public IntCode(long[] opcodes)
         {
             Opcodes = new long[100000000];
+            OriginalOpcodes = opcodes;
             for (long i = 0; i < opcodes.Length; i++)
             {
                 Opcodes[i] = opcodes[i];
@@ -76,6 +78,17 @@ namespace AdventOfCode.Nineteen
                 Input.Enqueue(i);
             }
             Paused = false;
+        }
+
+        public void Restart()
+        {
+            InstructionPointer = 0;
+            Halted = false;
+            Opcodes = new long[100000000];
+            for (long i = 0; i < OriginalOpcodes.Length; i++)
+            {
+                Opcodes[i] = OriginalOpcodes[i];
+            }
         }
 
         public long ComputeResult()
@@ -187,7 +200,7 @@ namespace AdventOfCode.Nineteen
                     default:
                         break;
                 }
-                
+
                 currentOpcode = Opcodes[InstructionPointer];
                 if (Opcodes[InstructionPointer] == 99)
                 {

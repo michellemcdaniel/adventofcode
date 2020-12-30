@@ -49,25 +49,40 @@ namespace AdventOfCode.Twenty
 
             while(tiles.Any())
             {
-                DumpTile(BuildMap(locations));
                 List<int> tilesToRemove = new();
                 Dictionary<int, Location> tilesToAdd = new();
-                foreach(var location in locations)
+                
+                foreach(var location in locations.Where(l => l.Value.Neighbors != 4))
                 {
-                    foreach (var tile in tiles)
+                    foreach (var tile in tilesToAdd)
                     {
-                        if (tilesToAdd.ContainsKey(tile.Key))
+                        if (CompareRotated(location.Value.Tile, tile.Value.Tile, out char[,] changed, out int rowChange, out int colChange))
                         {
-                            continue;
+                            location.Value.Neighbors++;
+                            tile.Value.Neighbors++;
                         }
+                    }
 
+                    if (location.Value.Neighbors == 4)
+                    {
+                        continue;
+                    }
+
+                    foreach (var tile in tiles.Where(tile => !tilesToAdd.ContainsKey(tile.Key)))
+                    {
                         if (CompareRotated(location.Value.Tile, tile.Value, out char[,] changed, out int rowChange, out int colChange))
                         {
                             int row = location.Value.Row + rowChange;
                             int col = location.Value.Col + colChange;
+                            location.Value.Neighbors++;
 
-                            tilesToAdd.Add(tile.Key, new Location(row, col, changed));
+                            tilesToAdd.Add(tile.Key, new Location(row, col, changed) { Neighbors = 1});
                             tilesToRemove.Add(tile.Key);
+                        }
+                        
+                        if (location.Value.Neighbors == 4)
+                        {
+                            break;
                         }
                     }
                 }
@@ -89,7 +104,7 @@ namespace AdventOfCode.Twenty
 
             long multiplied = minMin.Key * minMax.Key * maxMin.Key * maxMax.Key;
             char[,] map = BuildMap(locations);
-            DumpTile(map);
+            //DumpTile(map);
 
             int rotateCount = 0;
             char[,] mapWithMonsters = map;
@@ -128,7 +143,7 @@ namespace AdventOfCode.Twenty
                 }
             }
 
-            DumpTile(mapWithMonsters);
+            //DumpTile(mapWithMonsters);
 
             Console.WriteLine($"Part One: {multiplied}");
             Console.WriteLine($"Part Two: {roughWaters}");
@@ -138,6 +153,7 @@ namespace AdventOfCode.Twenty
         {
             public int Row { get; set; }
             public int Col { get; set; }
+            public int Neighbors { get; set; }
             public char[,] Tile { get; set;}
 
             public Location(int row, int col, char[,] tile)
@@ -145,6 +161,7 @@ namespace AdventOfCode.Twenty
                 Row = row;
                 Col = col;
                 Tile = tile;
+                Neighbors = 0;
             }
         }
 
