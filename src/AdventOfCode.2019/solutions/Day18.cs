@@ -1,5 +1,6 @@
 using AdventOfCode.Helpers;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,7 +10,6 @@ namespace AdventOfCode.Nineteen
 {
     public class Day18
     {
-        public static Dictionary<(Node,Node), int> memoized = new();
         public static void Execute(string filename)
         {
             List<string> input = File.ReadAllLines(filename).ToList();
@@ -17,11 +17,10 @@ namespace AdventOfCode.Nineteen
             char[,] map = new char[input.Count, input.First().Length];
             Dictionary<char, (int, int)> keyLocations = new();
             Dictionary<char, (int, int)> doorLocations = new();
+            HashSet<char> keys = new();
 
             int x = 0;
             int y = 0;
-
-            Dictionary<(int, int), Node> nodes = new();
 
             for (int i = 0; i < input.Count; i++)
             {
@@ -33,230 +32,148 @@ namespace AdventOfCode.Nineteen
                         x = i;
                         y = j;
                     }
-                    if (input[i][j] != '#')
+                    
+                    if (RegexHelper.Match(input[i][j].ToString(), @"^[a-z]$"))
                     {
-                        nodes.Add((i,j), new Node(i, j, input[i][j]));
+                        keys.Add(input[i][j]);
                     }
                 }
             }
 
-            Console.WriteLine($"Entrance is at {x},{y}.");
+            map = RemoveDeadEnds(map);
+            DumpMap(map);
 
-            map = RemoveDeadEnds(map, nodes, x, y);
-            DumpMap(map, x, y);
+            Console.WriteLine(BFS(map, x, y));
 
-            keyLocations = GetPatternLocations(map, @"^[a-z]$");
-            doorLocations = GetPatternLocations(map, @"^[A-Z]$");
+            // rewrite the map for part 2
+            map[x+1,y+1] = '@';
+            map[x+1,y-1] = '@';
+            map[x-1,y+1] = '@';
+            map[x-1,y-1] = '@';
+            map[x,y+1] = '#';
+            map[x,y-1] = '#';
+            map[x+1,y] = '#';
+            map[x-1,y] = '#';
+            map[x,y] = '#';
 
-            //Dictionary<(int, int), Stack<Stack<(int, int)>>> pathsTaken = new();
+            DumpMap(map);
 
-            Queue<Node> needToCheck = new Queue<Node>();
-            needToCheck.Enqueue(nodes[(x,y)]);
-
-            // Create graph with all nodes.
-            while (needToCheck.Any())
-            {
-                Node node = needToCheck.Dequeue();
-                foreach (var neighbor in GetAvailableNeighbors(map, node.Row, node.Column))
-                {
-                    if (!node.HasEdge(neighbor.Item1, neighbor.Item2))
-                    {
-                        Node neighborNode = nodes[(neighbor.Item1, neighbor.Item2)];
-                        Edge edge = new Edge(node, neighborNode, 1);
-                        node.FromEdges.Add(edge);
-                        neighborNode.ToEdges.Add(edge);
-                        needToCheck.Enqueue(neighborNode);
-                    }
-                }
-            }
-
-            // Reduce graph
-            needToCheck.Enqueue(nodes[(x,y)]);
-            int iterations = 0;
-
-            while (needToCheck.Any())
-            {
-                iterations++;
-                Node node = needToCheck.Dequeue();
-                List<Edge> newEdgeList = new();
-                bool changed = false;
-                foreach (var edge in node.FromEdges)
-                {
-                    Node neighbor = edge.To;
-                    if (neighbor.Value == '.')
-                    {
-                        // Collapse edges
-                        foreach (var neighborEdge in neighbor.FromEdges)
-                        {
-                            Edge newEdge = new Edge(node, neighborEdge.To, edge.Distance+neighborEdge.Distance);
-                            newEdgeList.Add(newEdge);
-                            neighborEdge.To.ToEdges.Remove(neighborEdge);
-                            neighborEdge.To.ToEdges.Add(newEdge);
-                        }
-                        nodes.Remove((neighbor.Row, neighbor.Column));
-                        changed = true;
-                    }
-                    else
-                    {
-                        if (neighbor.FromEdges.Any(e => e.To.Value == '.'))
-                            needToCheck.Enqueue(neighbor);
-
-                        if (edge.To.FromEdges.Any() || RegexHelper.Match(edge.To.Value.ToString(), @"^[a-z]$"))
-                            newEdgeList.Add(edge);
-                        else
-                            nodes.Remove((edge.To.Row, edge.To.Column));
-                    }
-                }
-                if (changed)
-                {
-                    needToCheck.Enqueue(node);
-                    node.FromEdges = newEdgeList;
-                }
-            }
-
-            foreach(var node in nodes)
-            {
-                node.Value.RemoveDuplicateEdges();
-                Console.WriteLine($"{node.Key}: {node.Value.Value}");
-                Console.WriteLine(node.Value.ListEdges());
-            }
-
-            HashSet<char> keysCollected = new();
-
-            foreach(var path in PathsAvailable(nodes[(x,y)], keysCollected))
-            {
-                foreach(var node in path)
-                {
-                    Console.Write($"({node.Row},{node.Column}) -> ");
-                }
-                Console.WriteLine();
-            }
-            Console.WriteLine(keysCollected.Count());
+            HashSet<char> keysInUpperLeftQuadrant = new();
+            HashSet<char> keysInUpperRightQuadrant = new();
+            HashSet<char> keysInLowerLeftQuadrant = new();
+            HashSet<char> keysInLowerRightQuadrant = new();
+            
+            // Find out which keys are in which quadrant.
+            // Start a robot. If it hits a door, the next robot we start will be the robot whose quadrant has the key. Repeat.
+            // If we have a split in the road, enqueue all possible paths. (never more than two, tbh). We need to do that path length checking thing.
+            
         }
 
-        public static List<List<Node>> PathsAvailable(Node start, HashSet<char> keysCollected)
+        public class Node
         {
-            List<List<Node>> paths = new();
+            public int Row { get; set;}
+            public int Column { get; set; }
+            public uint Visited { get; set; }
+            public int Distance { get; set; }
+            public HashSet<char> VisistedChar { get; set; }
 
-            foreach(var edge in start.FromEdges)
+            public Node(int row, int col, uint visited, int distance, HashSet<char> vc)
             {
-                if (char.IsUpper(edge.To.Value))
-                {
-                    continue; // can't go there yet.
-                }
-                else
-                {
-                    if (char.IsLetter(edge.To.Value))
-                    {
-                        keysCollected.Add(edge.To.Value);
-                    }
-
-                    List<List<Node>> neighborPaths = PathsAvailable(edge.To, keysCollected);
-                    foreach(var path in neighborPaths)
-                    {
-                        path.Insert(0,start);
-                        paths.Add(path);
-                    }
-                }
+                Row = row;
+                Column = col;
+                Visited = visited;
+                Distance = distance;
+                VisistedChar = vc;
             }
 
-            if (paths.Count == 0)
-            {
-                paths.Add(new List<Node>() {start});
+            public override bool Equals(object obj)
+            {   
+                if (obj == null || GetType() != obj.GetType())
+                {
+                    return false;
+                }
+                
+                Node compare = obj as Node;
+                return (compare.Row == Row && compare.Column == Column && compare.Visited == Visited);
             }
-
-            return paths;
+            
+            // override object.GetHashCode
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    int hash = 13;
+                    hash = (hash*7) + Row.GetHashCode();
+                    hash = (hash*7) + Column.GetHashCode();
+                    hash = (hash*7) + Visited.GetHashCode();
+                    return hash;
+                }
+            }
         }
 
-        public static int ComputeDistances(Node start, Node end)
+        public static int BFS(char[,] map, int x, int y)
         {
-            // Need to get the min distance from the current node to the target node
+            const uint allKeys = (1u << 26) - 1;
+            Dictionary<Node, int> state = new();
+
             Queue<Node> nodesToProcess = new();
-            Dictionary<Node, int> distances = new();
-            HashSet<Edge> edgesProcessed = new();
-            nodesToProcess.Enqueue(start);
-            distances.Add(start, 0);
+            nodesToProcess.Enqueue(new Node(x, y, 0,0, new HashSet<char>()));
 
-            while(nodesToProcess.Any())
+            Dictionary<string, int> allPaths = new();
+
+            while (nodesToProcess.Any())
             {
                 Node node = nodesToProcess.Dequeue();
-                foreach (var edge in node.FromEdges)
+                char value = map[node.Row, node.Column];
+                if (char.IsLetter(value) && char.IsLower(value))
                 {
-                    if (edgesProcessed.Contains(edge))
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        if (distances.TryGetValue(edge.To, out int d))
-                        {
-                            if (distances[node] + edge.Distance < d)
-                            {
-                                distances[edge.To] = distances[node] + edge.Distance;
-                            }
-                        }
-                        else
-                        {
-                            distances.Add(edge.To, distances[node] + edge.Distance);
-                        }
-                        if (edge.To != end)
-                        {
-                            nodesToProcess.Enqueue(edge.To);
-                        }
+                    node.Visited |= (1u << (value - 'a')); // find the right bit to mark as visited
+                    node.VisistedChar.Add(value); // also add the value to the char set for future printing.
 
-                        edgesProcessed.Add(edge);
+                    if (node.Visited == allKeys)
+                    {
+                        // We found all the keys! Celebrate!
+                        string path = string.Join("",node.VisistedChar);
+                        
+                        if (!allPaths.TryGetValue(path, out int distance))
+                        {
+                            Console.WriteLine($"Found solution: {path} {node.Distance}");
+                            allPaths[path] = node.Distance;
+                        }
                     }
                 }
-
-                foreach (var edge in node.ToEdges)
+                else if (char.IsLetter(value) && char.IsUpper(value)
+                    && (node.Visited & (1u << char.ToLower(value) - 'a')) == 0)
                 {
-                    if (edgesProcessed.Contains(edge))
-                    {
-                        continue;
-                    }
+                    // We found a door we don't have a key for
+                    continue;
+                }
 
-                    if (memoized.TryGetValue((start,edge.From), out int dist))
-                    {
-                        distances[edge.From] = dist;
-                    }
-                    else
-                    {
-                        if (distances.TryGetValue(edge.From, out int d))
-                        {
-                            if (distances[node] + edge.Distance < d)
-                            {
-                                distances[edge.From] = distances[node] + edge.Distance;
-                            }
-                        }
-                        else
-                        {
-                            distances.Add(edge.From, distances[node] + edge.Distance);
-                        }
-                    }
+                int currentDistance = int.MaxValue;
+                if (!state.TryGetValue(node, out currentDistance))
+                {
+                    currentDistance = int.MaxValue;
+                }
+                if (node.Distance >= currentDistance)
+                {
+                    // We've been here before with the same keys collected, 
+                    // but it was faster, so we should stop checking
+                    continue;
+                }
 
-                    if (edge.To != end)
-                    {
-                        nodesToProcess.Enqueue(edge.From);
-                    }
+                state[node] = node.Distance;
+                node.Distance++;
 
-                    edgesProcessed.Add(edge);
+                foreach(var neighbor in GetAvailableNeighbors(map, node.Row, node.Column))
+                {
+                    nodesToProcess.Enqueue(new Node(neighbor.Item1, neighbor.Item2, node.Visited, node.Distance, new HashSet<char>(node.VisistedChar)));
                 }
             }
 
-            foreach (var node in distances)
-            {
-                memoized[(start,node.Key)] = node.Value; 
-            }
-
-            return distances[end];
+            return allPaths.Values.Min(); // ran out of nodes without collecting everything?
         }
 
-        public static bool MapContainsKeys(HashSet<char> keysInMap, HashSet<char> keysCollected)
-        {
-            return keysInMap.Except(keysCollected).Count() == 0;
-        }
-
-        public static char[,] RemoveDeadEnds(char[,] map, Dictionary<(int, int), Node> nodes, int x, int y)
+        public static char[,] RemoveDeadEnds(char[,] map)
         {
             Queue<(int, int, List<(int, int)>)> locationsWithThreeWalls = new();
 
@@ -264,11 +181,7 @@ namespace AdventOfCode.Nineteen
             {
                 for (int j = 0; j < map.GetLength(1); j++)
                 {
-                    if (i == x && j == y)
-                    {
-                        continue;
-                    }
-                    if (map[i, j] == '.')
+                    if (map[i, j] == '.' || (char.IsLetter(map[i,j]) && char.IsUpper(map[i,j])))
                     {
                         List<(int, int)> neighbors = GetAvailableNeighbors(map, i, j);
 
@@ -284,12 +197,13 @@ namespace AdventOfCode.Nineteen
             {
                 (int i, int j, List<(int, int)> neighbors) = locationsWithThreeWalls.Dequeue();
                 map[i,j] = '#';
-                nodes.Remove((i,j));
 
                 foreach(var neighbor in neighbors)
                 {
                     List<(int, int)> neighborOfNeighbors = GetAvailableNeighbors(map, neighbor.Item1, neighbor.Item2);
-                    if (neighborOfNeighbors.Count == 1 && map[neighbor.Item1, neighbor.Item2] == '.' && !(neighbor.Item1 == x && neighbor.Item2 == y))
+                    if (neighborOfNeighbors.Count == 1 && 
+                        (map[neighbor.Item1, neighbor.Item2] == '.' || 
+                            (char.IsLetter(map[neighbor.Item1,neighbor.Item2]) && char.IsUpper(map[neighbor.Item1,neighbor.Item2]))))
                     {
                         locationsWithThreeWalls.Enqueue((neighbor.Item1, neighbor.Item2, neighborOfNeighbors));
                     }
@@ -297,22 +211,6 @@ namespace AdventOfCode.Nineteen
             }
 
             return map;
-        }
-
-        public static Dictionary<char, (int,int)> GetPatternLocations(char[,] map, string pattern)
-        {
-            Dictionary<char, (int, int)> locations = new();
-            for (int i = 0; i < map.GetLength(0); i++)
-            {
-                for (int j = 0; j < map.GetLength(1); j++)
-                {
-                    if (RegexHelper.Match(map[i,j].ToString(), pattern))
-                    {
-                        locations.Add(map[i,j], (i, j));
-                    }
-                }
-            }
-            return locations;
         }
 
         public static List<(int, int)> GetAvailableNeighbors(char[,] map, int x, int y)
@@ -334,24 +232,6 @@ namespace AdventOfCode.Nineteen
             return neighbors;
         }
 
-        public static int SwitchDirection(int i)
-        {
-            switch(i)
-            {
-                case 1: // Up
-                    return 2;
-                case 2: // Down
-                    return 1;
-                case 3: // Right
-                    return 4;
-                case 4: // Left
-                    return 3;
-                default:
-                    // something went wrong
-                    throw new ArgumentException($"Unkown direction {i}", "i");
-            }
-        }
-
         public static (int dx, int dy) GetDirection(int direction)
         {
             switch(direction)
@@ -369,117 +249,17 @@ namespace AdventOfCode.Nineteen
             }
         }
 
-        public static void DumpMap(char[,] map, int x, int y)
+        public static void DumpMap(char[,] map)
         {
             for (int i = 0; i < map.GetLength(0); i++)
             {
                 for (int j = 0; j < map.GetLength(1); j++)
                 {
-                    if (i == x && j == y && map[i,j] != '@')
-                    {
-                        Console.Write("+");
-                    }
-                    else
-                        Console.Write(map[i,j]);
+                    Console.Write(map[i,j]);
                 }
                 Console.WriteLine();
             }
             Console.WriteLine();
-        }
-
-        public class Node
-        {
-            public int Row { get; set; }
-            public int Column { get; set; }
-            public char Value { get; set; }
-            public List<Edge> ToEdges { get; set; }
-            public List<Edge> FromEdges { get; set; }
-
-            public Node(int row, int column, char value)
-            {
-                Row = row;
-                Column = column;
-                Value = value;
-                ToEdges = new List<Edge>();
-                FromEdges = new List<Edge>();
-            }
-
-            public bool HasEdge(int row, int column)
-            {
-                return ToEdges.Any(
-                        e => (e.From.Row == row && e.From.Column == column)) 
-                    || FromEdges.Any(
-                        e => (e.To.Row == row && e.To.Column == column));
-            }
-
-            public List<Edge> AllEdges()
-            {
-                return FromEdges.Concat(ToEdges).ToList();
-            }
-
-            public void RemoveDuplicateEdges()
-            {
-                List<Edge> newTo = new List<Edge>();
-                
-                foreach (var edge in ToEdges)
-                {
-                    Edge dup = newTo.FirstOrDefault(e => e.From == edge.From);
-                    if (dup != null)
-                    {
-                        dup.Distance = Math.Min(dup.Distance, edge.Distance);
-                    }
-                    else
-                    {
-                        newTo.Add(edge);
-                    }
-                }
-
-                ToEdges = newTo;
-
-                List<Edge> newFrom = new List<Edge>();
-                foreach (var edge in FromEdges)
-                {
-                    Edge dup = newFrom.FirstOrDefault(e => e.To == edge.To);
-                    if (dup != null)
-                    {
-                        dup.Distance = Math.Min(dup.Distance, edge.Distance);
-                    }
-                    else
-                    {
-                        newFrom.Add(edge);
-                    }
-                }
-
-                FromEdges = newFrom;
-            }
-
-            public string ListEdges()
-            {
-                StringBuilder sb = new StringBuilder();
-                foreach(var edge in FromEdges)
-                {
-                    sb.AppendLine($"\t({edge.From.Row},{edge.From.Column}) {edge.From.Value} -> ({edge.To.Row},{edge.To.Column}) {edge.To.Value} = {edge.Distance}");
-                }
-                foreach(var edge in ToEdges)
-                {
-                    sb.AppendLine($"\t({edge.From.Row},{edge.From.Column}) {edge.From.Value} -> ({edge.To.Row},{edge.To.Column}) {edge.To.Value} = {edge.Distance}");
-                }
-                return sb.ToString();
-            }
-        }
-
-        public class Edge
-        {
-            public Node From { get; set; }
-            public Node To { get; set; }
-            public int Distance { get; set; }
-
-            public Edge (Node from, Node to, int distance)
-            {
-                From = from;
-                To = to;
-                Distance = distance;
-            }
         }
     }
 }
