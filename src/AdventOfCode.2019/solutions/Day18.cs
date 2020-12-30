@@ -43,7 +43,7 @@ namespace AdventOfCode.Nineteen
             map = RemoveDeadEnds(map);
             DumpMap(map);
 
-            Console.WriteLine(BFS(map, x, y));
+            Console.WriteLine($"Part One: {BFS(map, x, y, GetKeysInMap(map))}");
 
             // rewrite the map for part 2
             map[x+1,y+1] = '@';
@@ -56,17 +56,20 @@ namespace AdventOfCode.Nineteen
             map[x-1,y] = '#';
             map[x,y] = '#';
 
-            DumpMap(map);
+            List<char[,]> subMaps = new();
+            subMaps.Add(CreateSubMap(map, 0, 0, x+1, y+1));
+            subMaps.Add(CreateSubMap(map, x, 0, map.GetLength(0), y+1));
+            subMaps.Add(CreateSubMap(map, 0, y, x+1, map.GetLength(1)));
+            subMaps.Add(CreateSubMap(map, x, y, map.GetLength(0), map.GetLength(1)));
 
-            HashSet<char> keysInUpperLeftQuadrant = new();
-            HashSet<char> keysInUpperRightQuadrant = new();
-            HashSet<char> keysInLowerLeftQuadrant = new();
-            HashSet<char> keysInLowerRightQuadrant = new();
-            
-            // Find out which keys are in which quadrant.
-            // Start a robot. If it hits a door, the next robot we start will be the robot whose quadrant has the key. Repeat.
-            // If we have a split in the road, enqueue all possible paths. (never more than two, tbh). We need to do that path length checking thing.
-            
+            int steps = 0;
+            foreach(var subMap in subMaps)
+            {
+                (int i, int j) = GetEntryPoint(subMap);
+                steps += BFS(subMap, i, j, GetKeysInMap(subMap));
+            }
+
+            Console.WriteLine($"Part Two: {steps}");
         }
 
         public class Node
@@ -111,14 +114,65 @@ namespace AdventOfCode.Nineteen
             }
         }
 
-        public static int BFS(char[,] map, int x, int y)
+        public static char[,] CreateSubMap(char[,] map, int startX, int startY, int endX, int endY)
         {
-            const uint allKeys = (1u << 26) - 1;
-            Dictionary<Node, int> state = new();
+            char[,] subMap = new char[(endX-startX), (endY-startY)];
 
+            for (int i = startX; i < endX; i++)
+            {
+                for (int j = startY; j < endY; j++)
+                {
+                    subMap[i-startX,j-startY] = map[i,j];
+                }
+            }
+            return subMap;
+        }
+
+        public static HashSet<char> GetKeysInMap(char[,] map)
+        {
+            HashSet<char> keys = new();
+
+            for (int i = 0; i < map.GetLength(0); i++)
+            {
+                for (int j = 0; j < map.GetLength(1); j++)
+                {
+                    if (char.IsLetter(map[i,j]) && char.IsLower(map[i,j]))
+                    {
+                        keys.Add(map[i,j]);
+                    }
+                }
+            }
+
+            return keys;
+        }
+
+        public static (int x, int y) GetEntryPoint(char[,] map)
+        {
+            for (int i = 0; i < map.GetLength(0); i++)
+            {
+                for (int j = 0; j < map.GetLength(1); j++)
+                {
+                    if (map[i,j] == '@')
+                    {
+                        return (i,j);
+                    }
+                }
+            }
+
+            return (-1,-1); // didn't find an entry point.
+        }
+
+        public static int BFS(char[,] map, int x, int y, HashSet<char> keysInMap)
+        {
+            uint allKeys = 0;
+            foreach(var key in keysInMap)
+            {
+                allKeys |= (1u << (key - 'a'));
+            }
+            
+            Dictionary<Node, int> state = new();
             Queue<Node> nodesToProcess = new();
             nodesToProcess.Enqueue(new Node(x, y, 0,0, new HashSet<char>()));
-
             Dictionary<string, int> allPaths = new();
 
             while (nodesToProcess.Any())
@@ -137,15 +191,15 @@ namespace AdventOfCode.Nineteen
                         
                         if (!allPaths.TryGetValue(path, out int distance))
                         {
-                            Console.WriteLine($"Found solution: {path} {node.Distance}");
                             allPaths[path] = node.Distance;
                         }
                     }
                 }
                 else if (char.IsLetter(value) && char.IsUpper(value)
+                    && (allKeys & (1u << char.ToLower(value) - 'a')) != 0
                     && (node.Visited & (1u << char.ToLower(value) - 'a')) == 0)
                 {
-                    // We found a door we don't have a key for
+                    // We found a door we don't have a key for and we need the key
                     continue;
                 }
 
@@ -175,7 +229,7 @@ namespace AdventOfCode.Nineteen
 
         public static char[,] RemoveDeadEnds(char[,] map)
         {
-            Queue<(int, int, List<(int, int)>)> locationsWithThreeWalls = new();
+            Queue<(int, int, List<(int, int)>)> deadEnds = new();
 
             for (int i = 0; i < map.GetLength(0); i++)
             {
@@ -187,25 +241,26 @@ namespace AdventOfCode.Nineteen
 
                         if (neighbors.Count == 1)
                         {
-                            locationsWithThreeWalls.Enqueue((i,j, neighbors));
+                            deadEnds.Enqueue((i,j, neighbors));
                         }
                     }
                 }
             }
 
-            while (locationsWithThreeWalls.Any())
+            while (deadEnds.Any())
             {
-                (int i, int j, List<(int, int)> neighbors) = locationsWithThreeWalls.Dequeue();
+                (int i, int j, List<(int, int)> neighbors) = deadEnds.Dequeue();
                 map[i,j] = '#';
 
                 foreach(var neighbor in neighbors)
                 {
-                    List<(int, int)> neighborOfNeighbors = GetAvailableNeighbors(map, neighbor.Item1, neighbor.Item2);
+                    (int x, int y) = neighbor;
+                    List<(int, int)> neighborOfNeighbors = GetAvailableNeighbors(map, x, y);
                     if (neighborOfNeighbors.Count == 1 && 
-                        (map[neighbor.Item1, neighbor.Item2] == '.' || 
-                            (char.IsLetter(map[neighbor.Item1,neighbor.Item2]) && char.IsUpper(map[neighbor.Item1,neighbor.Item2]))))
+                        (map[x, y] == '.' || 
+                            (char.IsLetter(map[x,y]) && char.IsUpper(map[x,y]))))
                     {
-                        locationsWithThreeWalls.Enqueue((neighbor.Item1, neighbor.Item2, neighborOfNeighbors));
+                        deadEnds.Enqueue((x, y, neighborOfNeighbors));
                     }
                 }
             }
