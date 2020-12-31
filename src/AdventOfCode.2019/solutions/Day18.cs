@@ -195,6 +195,7 @@ namespace AdventOfCode.Nineteen
                         }
                     }
                 }
+                
                 else if (char.IsLetter(value) && char.IsUpper(value)
                     && (allKeys & (1u << char.ToLower(value) - 'a')) != 0
                     && (node.Visited & (1u << char.ToLower(value) - 'a')) == 0)
