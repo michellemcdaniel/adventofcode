@@ -16,9 +16,8 @@ namespace AdventOfCode.Nineteen
             int deckSize = 10007;
             List<Rule> initialRules = ParseRules(input);
             List<Rule> reducedRules = ReduceRules(initialRules, deckSize);
-            long value = GetCard(reducedRules, deckSize, 2019);
 
-            Console.WriteLine($"Part One: {value}");
+            Console.WriteLine($"Part One: {GetCard(reducedRules, deckSize, 2019)}");
 
             List<Rule> iterationRules = new List<Rule>(initialRules);
             reducedRules = new List<Rule>();
@@ -38,9 +37,7 @@ namespace AdventOfCode.Nineteen
                 iterationRules.AddRange(iterationRules);
                 iterationRules = ReduceRules(iterationRules, count);
             }
-
-            long position = GetCard(reducedRules, count, 2020);
-            Console.WriteLine($"Part Two: {position}");
+            Console.WriteLine($"Part Two: {GetCard(reducedRules, count, 2020)}");
         }
 
         public static long GetCard(List<Rule> rules, long count, long value)
@@ -121,10 +118,6 @@ namespace AdventOfCode.Nineteen
                                 {
                                     continue;
                                 }
-                                
-                                i++;
-                                changed = true;
-
                                 switch(rules[i+1].Type)
                                 {
                                     case RuleType.Cut: // combine the two cuts.
@@ -139,6 +132,8 @@ namespace AdventOfCode.Nineteen
                                         reduced.Add(new Rule(RuleType.Cut, (long)((new BigInteger(rules[i].Value)*new BigInteger(rules[i+1].Value))%deckSize)));
                                         break;
                                 }
+                                i++;
+                                changed = true;
                                 break;
                             case RuleType.Deal:
                                 switch(rules[i+1].Type)
