@@ -89,6 +89,7 @@ namespace AdventOfCode.Nineteen
             {
                 Opcodes[i] = OriginalOpcodes[i];
             }
+            Input = new Queue<long>();
         }
 
         public long ComputeResult()
