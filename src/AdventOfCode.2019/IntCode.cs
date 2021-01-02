@@ -16,6 +16,7 @@ namespace AdventOfCode.Nineteen
         public long RelativeBase { get; set; }
         public bool Pause { get; set; }
         public Queue<long> Input { get; set; }
+        public bool WaitForInput { get; set; }
 
         public IntCode(long[] opcodes)
         {
@@ -64,11 +65,13 @@ namespace AdventOfCode.Nineteen
         {
             Input.Enqueue(input);
             Paused = false;
+            WaitForInput = false;
         }
 
         public void Resume()
         {
             Paused = false;
+            WaitForInput = false;
         }
 
         public void Resume(List<int> input)
@@ -78,6 +81,17 @@ namespace AdventOfCode.Nineteen
                 Input.Enqueue(i);
             }
             Paused = false;
+            WaitForInput = false;
+        }
+
+        public void Resume(List<long> input)
+        {
+            foreach (var i in input)
+            {
+                Input.Enqueue(i);
+            }
+            Paused = false;
+            WaitForInput = false;
         }
 
         public void Restart()
@@ -123,10 +137,20 @@ namespace AdventOfCode.Nineteen
                         Opcodes[replaceLocation] = Opcodes[firstInput] * Opcodes[secondInput];
                         InstructionPointer = InstructionPointer+4;
                         break;
-                    case 3: 
-                        replaceLocation = GetParameter(InstructionPointer+1, inst.FirstParameterMode);
-                        Opcodes[replaceLocation] = Input.Dequeue();
-                        InstructionPointer = InstructionPointer+2;
+                    case 3:
+                        if (Input.Any())
+                        {
+                            replaceLocation = GetParameter(InstructionPointer+1, inst.FirstParameterMode);
+                            Opcodes[replaceLocation] = Input.Dequeue();
+                            InstructionPointer = InstructionPointer+2;
+                        }
+                        else
+                        {
+                            // need to wait for input.
+                            WaitForInput = true;
+                            Paused = true;
+                            return -1;
+                        }
                         break;
                     case 4:
                         replaceLocation = GetParameter(InstructionPointer+1, inst.FirstParameterMode);
