@@ -97,6 +97,8 @@ namespace AdventOfCode.Cli.Operations
                     Day23.Execute(filename);
                     break;
                 case 24:
+                    Day24.Execute(filename);
+                    break;
                 case 25:
                     throw new NotImplementedException($"Day {_options.Day} is not implemented yet.");
                 default:
