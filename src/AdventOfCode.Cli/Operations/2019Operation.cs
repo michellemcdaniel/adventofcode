@@ -100,7 +100,8 @@ namespace AdventOfCode.Cli.Operations
                     Day24.Execute(filename);
                     break;
                 case 25:
-                    throw new NotImplementedException($"Day {_options.Day} is not implemented yet.");
+                    Day25.Execute(filename);
+                    break;
                 default:
                     throw new ArgumentException($"Day {_options.Day} is outside the scope of Advent of Code.", "--day");
             }
