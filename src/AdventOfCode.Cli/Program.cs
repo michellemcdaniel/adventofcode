@@ -45,6 +45,7 @@ namespace AdventOfCode.Cli
             // so keep these sorted.
             return new Type[]
                 {
+                    typeof(AdventOfCodeEighteenCommandLineOptions),
                     typeof(AdventOfCodeNineteenCommandLineOptions),
                     typeof(AdventOfCodeTwentyCommandLineOptions)
                 };
