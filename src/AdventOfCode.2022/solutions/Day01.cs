@@ -12,12 +12,13 @@ namespace AdventOfCode.TwentyTwo
             List<long> elfCalories = new();
             long currentCalories = 0;
             long minimum = 0;
+            int howMany = 3;
 
             foreach (string line in File.ReadLines(filename))
             {
                 if (string.IsNullOrEmpty(line))
                 {
-                    if (elfCalories.Count < 3)
+                    if (elfCalories.Count < howMany)
                     {
                         elfCalories.Add(currentCalories);
                         minimum = elfCalories.Min();
