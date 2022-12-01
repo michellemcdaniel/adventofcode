@@ -47,7 +47,8 @@ namespace AdventOfCode.Cli
                 {
                     typeof(AdventOfCodeEighteenCommandLineOptions),
                     typeof(AdventOfCodeNineteenCommandLineOptions),
-                    typeof(AdventOfCodeTwentyCommandLineOptions)
+                    typeof(AdventOfCodeTwentyCommandLineOptions),
+                    typeof(AdventOfCodeTwentyTwoCommandLineOptions)
                 };
         }
     }
