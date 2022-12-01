@@ -11,12 +11,26 @@ namespace AdventOfCode.TwentyTwo
         {
             List<long> elfCalories = new();
             long currentCalories = 0;
+            long minimum = 0;
 
             foreach (string line in File.ReadLines(filename))
             {
                 if (string.IsNullOrEmpty(line))
                 {
-                    elfCalories.Add(currentCalories);
+                    if (elfCalories.Count < 3)
+                    {
+                        elfCalories.Add(currentCalories);
+                        minimum = elfCalories.Min();
+                    }
+                    else
+                    {
+                        if (currentCalories > minimum)
+                        {
+                            elfCalories.Remove(minimum);
+                            elfCalories.Add(currentCalories);
+                            minimum = elfCalories.Min();
+                        }
+                    }
                     currentCalories = 0;
                 }
                 else
@@ -25,11 +39,8 @@ namespace AdventOfCode.TwentyTwo
                 }
             }
 
-            List<long> sortedCalories = elfCalories.OrderByDescending(c => c).ToList();
-            long topThree = sortedCalories[0] + sortedCalories[1] + sortedCalories[2];
-
-            Console.WriteLine($"Part one: {sortedCalories[0]}");
-            Console.WriteLine($"Part two: {topThree}");
+            Console.WriteLine($"Part one: {elfCalories.Max()}");
+            Console.WriteLine($"Part two: {elfCalories.Sum()}");
         }
     }
 }
