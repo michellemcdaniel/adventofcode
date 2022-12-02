@@ -16,8 +16,8 @@ namespace AdventOfCode.TwentyTwo
             {
                 char[] round = line.Split(" ").Select(a => char.Parse(a)).ToArray();
 
-                int score = round[1]-'X'+1;
-                int theirs = round[0]-'A'+1;
+                int score = round[1] - 'X' + 1;
+                int theirs = round[0] - 'A' + 1;
 
                 if (score == theirs)
                 {
@@ -30,7 +30,7 @@ namespace AdventOfCode.TwentyTwo
 
                 totalScore += score;
 
-                int alternativeScore = (round[1]-'X')*3;
+                int alternativeScore = (round[1] - 'X') * 3;
 
                 if (alternativeScore == 3)
                 {
@@ -38,12 +38,14 @@ namespace AdventOfCode.TwentyTwo
                 }
                 else if (alternativeScore == 6)
                 {
-                    alternativeScore += theirs%3 + 1;
+                    alternativeScore += theirs % 3 + 1;
                 }
                 else
                 {
-                    int increase = theirs-1;
+                    // I honestly don't want to have to figure out inverse mod, which is what I need, so this is going to have to be gooooood enough.
+                    int increase = theirs - 1;
                     alternativeScore += (increase == 0 ? 3 : increase);
+                    
                 }
 
                 alternativeTotal += alternativeScore;
