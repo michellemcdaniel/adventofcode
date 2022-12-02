@@ -21,11 +21,11 @@ namespace AdventOfCode.TwentyTwo
 
                 if (score == theirs)
                 {
-                    score += + 3;
+                    score += 3;
                 }
                 else if (score - 1 == theirs || score + 2 == theirs)
                 {
-                    score = score + 6;
+                    score += 6;
                 }
 
                 totalScore += score;
