@@ -9,7 +9,7 @@ namespace AdventOfCode.TwentyTwo
     {
         public static void Execute(string filename)
         {
-            string[] allLines = File.ReadAllLines(filename);
+            List<string> allLines = File.ReadAllLines(filename).ToList();
 
             int totalPriority = 0;
             
@@ -32,9 +32,9 @@ namespace AdventOfCode.TwentyTwo
             int badgePriority = 0;
             int read = 0;
 
-            while(read*3 < allLines.Length)
+            while(read*3 < allLines.Count)
             {
-                string[] lines = allLines.Skip(read*3).Take(3).ToArray();
+                string[] lines = allLines.GetRange(read*3,3).ToArray();
                 foreach (var letter in lines[0])
                 {
                     if (lines[1].Contains(letter) && lines[2].Contains(letter))
