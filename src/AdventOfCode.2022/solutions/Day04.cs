@@ -17,15 +17,14 @@ namespace AdventOfCode.TwentyTwo
                 var elfOneRange = Enumerable.Range(pair.First().First(), pair.First().Last() - pair.First().First() + 1);
                 var elfTwoRange = Enumerable.Range(pair.Last().First(), pair.Last().Last() - pair.Last().First() + 1);
 
-                var oneIntersectTwo = elfOneRange.Intersect(elfTwoRange);
-                var twoIntersectOne = elfTwoRange.Intersect(elfOneRange);
+                var intersect = elfOneRange.Intersect(elfTwoRange);
 
-                if (oneIntersectTwo.Count() == elfTwoRange.Count() || twoIntersectOne.Count() == elfOneRange.Count())
+                if (intersect.Count() == elfTwoRange.Count() || intersect.Count() == elfOneRange.Count())
                 {
                     fullyContains++;
                 }
 
-                if (oneIntersectTwo.Any() || twoIntersectOne.Any())
+                if (intersect.Any())
                 {
                     overlap++;
                 }
