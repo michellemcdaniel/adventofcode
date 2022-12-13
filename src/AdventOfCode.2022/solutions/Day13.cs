@@ -10,8 +10,15 @@ namespace AdventOfCode.TwentyTwo
         public static void Execute(string filename)
         {
             List<(Packet a, Packet b)> packets = new();
+            List<(PacketValue a, PacketValue b)> originalPacketPairs = new();
+
             string[] input = File.ReadAllLines(filename);
             List<Packet> allPackets = new();
+            int twoPosition = 1;
+            int sixPosition = 1;
+
+            int originalTwoPosition = 1;
+            int originalSixPosition = 1;
 
             for (int i = 0; i < input.Length; i++)
             {
@@ -20,52 +27,60 @@ namespace AdventOfCode.TwentyTwo
                     continue;
                 }
 
-                Packet a = ParsePacket(input[i++]);
-                Packet b = ParsePacket(input[i]);
-                allPackets.Add(a);
-                allPackets.Add(b);
+                (Packet a, bool aLessThanTwo, bool aLessThanSix) = ParsePacket(input[i]);
+                (PacketValue originalA, bool oaLessThanTwo, bool oaLessThanSix) = ParsePacketOriginal(input[i++]);
+                
+                (Packet b, bool bLessThanTwo, bool bLessThanSix) = ParsePacket(input[i]);
+                (PacketValue originalB, bool obLessThanTwo, bool obLessThanSix) = ParsePacketOriginal(input[i]);
+                
+                twoPosition = aLessThanTwo ? twoPosition+1 : twoPosition;
+                twoPosition = bLessThanTwo ? twoPosition+1 : twoPosition;
+                sixPosition = aLessThanSix ? sixPosition+1 : sixPosition;
+                sixPosition = bLessThanSix ? sixPosition+1 : sixPosition;
+
+                originalTwoPosition = oaLessThanTwo ? originalTwoPosition+1 : originalTwoPosition;
+                originalTwoPosition = obLessThanTwo ? originalTwoPosition+1 : originalTwoPosition;
+                originalSixPosition = aLessThanSix ? originalSixPosition+1 : originalSixPosition;
+                originalSixPosition = obLessThanSix ? originalSixPosition+1 : originalSixPosition;
+
                 packets.Add((a,b));
+                originalPacketPairs.Add((originalA, originalB));
             }
 
             int totalPacketsOk = 0;
-            int currentPair = 0;
+            int totalPacketsOkOriginal = 0;
+            int totalPacketsOkStatic = 0;
 
-            foreach(var pair in packets)
+            for (int i = 0; i < originalPacketPairs.Count(); i++)
             {
-                
-                if (pair.a.CompareTo(pair.b) <= 0)
+                if (packets[i].a.CompareTo(packets[i].b) <= 0)
                 {
-                    totalPacketsOk += currentPair;
+                    totalPacketsOk += i+1;
                 }
-                currentPair++;
-            }
-
-            // now we need to sort this list.
-
-            allPackets.Sort();
-            int distressSignal = 1;
-
-            for(int i = 0; i < allPackets.Count(); i++)
-            {
-                if (allPackets[i].ToString() == "[[2]]")
+                if (originalPacketPairs[i].a.Compare(originalPacketPairs[i].b) <= 0)
                 {
-                    distressSignal *= (i+1);
+                    totalPacketsOkOriginal += i+1;
                 }
-                if (allPackets[i].ToString() == "[[6]]")
+                if (Compare(originalPacketPairs[i].a, originalPacketPairs[i].b) <= 0)
                 {
-                    distressSignal *= (i+1);
+                    totalPacketsOkStatic += i+1;
                 }
             }
 
-            Console.WriteLine($"Part one: {totalPacketsOk}");
-            Console.WriteLine($"Part two: {distressSignal}");
+            Console.WriteLine($"Part one: {totalPacketsOk} {totalPacketsOkOriginal} {totalPacketsOkStatic}");
+            Console.WriteLine($"Part two: {twoPosition*sixPosition} {originalTwoPosition*originalSixPosition}");
         }
 
-        public static Packet ParsePacket(string line)
+        public static (Packet, bool, bool) ParsePacket(string line)
         {
             int openBraceCount = 0;
             int i = 0;
             List<Packet> values = new List<Packet>();
+
+            bool firstValue = true;
+            bool LessThanTwo = false;
+            bool LessThanSix = false;
+
             while (i < line.Length)
             {
                 if (line[i] == '[')
@@ -87,6 +102,18 @@ namespace AdventOfCode.TwentyTwo
                 }
                 else if (line[i] == ']')
                 {
+                    ListPacket packet = (ListPacket) values.Last();
+                    for (int j = 1; j < openBraceCount; j++)
+                    {
+                        // iterate through packet lists
+                        packet = (ListPacket) packet.Packets.Last();
+                    }
+                    if (firstValue && packet.Packets.Count() == 0)
+                    {
+                        LessThanSix = true;
+                        LessThanTwo = true;
+                        firstValue = false;
+                    }
                     openBraceCount--;
                 }
                 else if (line[i] != ',')
@@ -96,6 +123,12 @@ namespace AdventOfCode.TwentyTwo
                     {
                         nextValue += line[i];
                         i++;
+                    }
+                    if (firstValue)
+                    {
+                        LessThanSix = int.Parse(nextValue) < 6;
+                        LessThanTwo = int.Parse(nextValue) < 2;
+                        firstValue = false;
                     }
                     ListPacket packet = (ListPacket) values.Last();
                     for (int j = 1; j < openBraceCount; j++)
@@ -108,10 +141,220 @@ namespace AdventOfCode.TwentyTwo
                 i++;
             }
 
-            return values.First();
+            return (values.First(), LessThanTwo, LessThanSix);
+        }
+
+        public static (PacketValue, bool, bool) ParsePacketOriginal(string line)
+        {
+            int openBraceCount = 0;
+            int i = 0;
+            PacketValue values = new PacketValue();
+
+            bool firstValue = true;
+            bool LessThanTwo = false;
+            bool LessThanSix = false;
+
+            while (i < line.Length)
+            {
+                if (line[i] == '[')
+                {
+                    if (openBraceCount == 0)
+                    {
+                        values = new PacketValue();
+                    }
+                    else 
+                    {
+                        PacketValue packet = values;
+                        for (int j = 1; j < openBraceCount; j++)
+                        {
+                            // iterate through packet lists
+                            packet = packet.Values.Last();
+                        }
+
+                        packet.Values.Add(new PacketValue());
+                    }
+                    openBraceCount++;
+                }
+                else if (line[i] == ']')
+                {
+                    PacketValue packet = values;
+                    for (int j = 1; j < openBraceCount; j++)
+                    {
+                        // iterate through packet lists
+                        packet = packet.Values.Last();
+                    }
+                    if (firstValue && packet.Values.Count() == 0)
+                    {
+                        LessThanSix = true;
+                        LessThanTwo = true;
+                        firstValue = false;
+                    }
+                    openBraceCount--;
+                }
+                else if (line[i] != ',')
+                {
+                    string nextValue = "";
+                    while (char.IsDigit(line[i]))
+                    {
+                        nextValue += line[i];
+                        i++;
+                    }
+                    if (firstValue)
+                    {
+                        LessThanSix = int.Parse(nextValue) < 6;
+                        LessThanTwo = int.Parse(nextValue) < 2;
+                        firstValue = false;
+                    }
+                    PacketValue packet = values;
+                    for (int j = 1; j < openBraceCount; j++)
+                    {
+                        packet = packet.Values.Last();
+                    }
+
+                    packet.Values.Add(new PacketValue(int.Parse(nextValue)));
+                }
+                i++;
+            }
+
+            return (values, LessThanTwo, LessThanSix);
+        }
+
+        public static int Compare(PacketValue first, PacketValue second)
+        {
+            if (first.Value == -1)
+            {
+                // This is a List one. Other should be a List one too
+                if (second.Value != -1)
+                {
+                    // Make it a list one and compare that
+                    return Compare(first, new PacketValue(second.Value, true));
+                }
+                else
+                {
+                    // Two lists ones. Need to compare subparts.
+                    for (int i = 0; ; i++)
+                    {
+                        if (i == first.Values.Count())
+                        {
+                            if (i == second.Values.Count())
+                            {
+                                return 0;
+                            }
+                            else
+                            {
+                                return -1;
+                            }
+                        }
+
+                        if (i == second.Values.Count())
+                        {
+                            return 1;
+                        }
+
+                        int subPacketCompare = Compare(first.Values[i], second.Values[i]);
+                        if (subPacketCompare != 0)
+                        {
+                            return subPacketCompare;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // This is a value one
+                if (second.Value != -1)
+                {
+                    return first.Value.CompareTo(second.Value);
+                }
+                else
+                {
+                    return Compare(new PacketValue(first.Value, true), second);
+                }
+            }
         }
     }
 
+    public class PacketValue
+    {
+        public int Value;
+        public List<PacketValue> Values;
+
+        public PacketValue()
+        {
+            Values = new List<PacketValue>();
+            Value = -1;
+        }
+
+        public PacketValue(int value, bool asList = false)
+        {
+            if (asList)
+            {
+                Values = new List<PacketValue>() 
+                {
+                    new PacketValue(value)
+                };
+                Value = -1;
+            }
+            else
+            {
+                Value = value;
+            }
+        }
+
+        public int Compare(PacketValue other)
+        {
+            if (Value == -1)
+            {
+                // This is a List one. Other should be a List one too
+                if (other.Value != -1)
+                {
+                    // Make it a list one and compare that
+                    return this.Compare(new PacketValue(other.Value, true));
+                }
+                else
+                {
+                    // Two lists ones. Need to compare subparts.
+                    for (int i = 0; ; i++)
+                    {
+                        if (i == Values.Count())
+                        {
+                            if (i == other.Values.Count())
+                            {
+                                return 0;
+                            }
+                            else
+                            {
+                                return -1;
+                            }
+                        }
+
+                        if (i == other.Values.Count())
+                        {
+                            return 1;
+                        }
+
+                        int subPacketCompare = Values[i].Compare(other.Values[i]);
+                        if (subPacketCompare != 0)
+                        {
+                            return subPacketCompare;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // This is a value one
+                if (other.Value != -1)
+                {
+                    return Value.CompareTo(other.Value);
+                }
+                else
+                {
+                    return new PacketValue(Value, true).Compare(other);
+                }
+            }
+        }
+    }
     public abstract class Packet : IComparable
     {
         public abstract int CompareTo(object other);
