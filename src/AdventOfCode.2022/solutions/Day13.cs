@@ -71,6 +71,28 @@ namespace AdventOfCode.TwentyTwo
             Console.WriteLine($"Part two: {twoPosition*sixPosition} {originalTwoPosition*originalSixPosition}");
         }
 
+        public static ListPacket IteratePacket(ListPacket packet, int openBraceCount)
+        {
+            ListPacket currentPacket = packet;
+            for (int j = 1; j < openBraceCount; j++)
+            {
+                // iterate through packet lists
+                currentPacket = (ListPacket)currentPacket.Packets.Last();
+            }
+            return currentPacket;
+        }
+
+        public static PacketValue IteratePacket(PacketValue packet, int openBraceCount)
+        {
+            PacketValue currentPacket = packet;
+            for (int j = 1; j < openBraceCount; j++)
+            {
+                // iterate through packet lists
+                currentPacket = currentPacket.Values.Last();
+            }
+            return currentPacket;
+        }
+
         public static (Packet, bool, bool) ParsePacket(string line)
         {
             int openBraceCount = 0;
@@ -89,26 +111,15 @@ namespace AdventOfCode.TwentyTwo
                         values.Add(new ListPacket());
                     else 
                     {
-                        ListPacket packet = (ListPacket) values.Last();
-                        for (int j = 1; j < openBraceCount; j++)
-                        {
-                            // iterate through packet lists
-                            packet = (ListPacket) packet.Packets.Last();
-                        }
-
+                        ListPacket packet = IteratePacket((ListPacket) values.Last(), openBraceCount);
                         packet.Packets.Add(new ListPacket());
                     }
                     openBraceCount++;
                 }
                 else if (line[i] == ']')
                 {
-                    ListPacket packet = (ListPacket) values.Last();
-                    for (int j = 1; j < openBraceCount; j++)
-                    {
-                        // iterate through packet lists
-                        packet = (ListPacket) packet.Packets.Last();
-                    }
-                    if (firstValue && packet.Packets.Count() == 0)
+                    ListPacket packet = IteratePacket((ListPacket) values.Last(), openBraceCount);
+                    if (firstValue)
                     {
                         LessThanSix = true;
                         LessThanTwo = true;
@@ -130,12 +141,7 @@ namespace AdventOfCode.TwentyTwo
                         LessThanTwo = int.Parse(nextValue) < 2;
                         firstValue = false;
                     }
-                    ListPacket packet = (ListPacket) values.Last();
-                    for (int j = 1; j < openBraceCount; j++)
-                    {
-                        packet = (ListPacket) packet.Packets.Last();
-                    }
-
+                    ListPacket packet = IteratePacket((ListPacket) values.Last(), openBraceCount);
                     packet.Packets.Add(new IntPacket(int.Parse(nextValue)));
                 }
                 i++;
@@ -164,25 +170,15 @@ namespace AdventOfCode.TwentyTwo
                     }
                     else 
                     {
-                        PacketValue packet = values;
-                        for (int j = 1; j < openBraceCount; j++)
-                        {
-                            // iterate through packet lists
-                            packet = packet.Values.Last();
-                        }
-
+                        PacketValue packet = IteratePacket(values, openBraceCount);
                         packet.Values.Add(new PacketValue());
                     }
                     openBraceCount++;
                 }
                 else if (line[i] == ']')
                 {
-                    PacketValue packet = values;
-                    for (int j = 1; j < openBraceCount; j++)
-                    {
-                        // iterate through packet lists
-                        packet = packet.Values.Last();
-                    }
+                    PacketValue packet = IteratePacket(values, openBraceCount);
+
                     if (firstValue && packet.Values.Count() == 0)
                     {
                         LessThanSix = true;
@@ -205,12 +201,8 @@ namespace AdventOfCode.TwentyTwo
                         LessThanTwo = int.Parse(nextValue) < 2;
                         firstValue = false;
                     }
-                    PacketValue packet = values;
-                    for (int j = 1; j < openBraceCount; j++)
-                    {
-                        packet = packet.Values.Last();
-                    }
 
+                    PacketValue packet = IteratePacket(values, openBraceCount);
                     packet.Values.Add(new PacketValue(int.Parse(nextValue)));
                 }
                 i++;
@@ -223,27 +215,19 @@ namespace AdventOfCode.TwentyTwo
         {
             if (first.Value == -1)
             {
-                // This is a List one. Other should be a List one too
                 if (second.Value != -1)
                 {
-                    // Make it a list one and compare that
+                    // List vs Value
                     return Compare(first, new PacketValue(second.Value, true));
                 }
                 else
                 {
-                    // Two lists ones. Need to compare subparts.
+                    // List vs List
                     for (int i = 0; ; i++)
                     {
                         if (i == first.Values.Count())
                         {
-                            if (i == second.Values.Count())
-                            {
-                                return 0;
-                            }
-                            else
-                            {
-                                return -1;
-                            }
+                            return i.CompareTo(second.Values.Count());
                         }
 
                         if (i == second.Values.Count())
@@ -261,13 +245,14 @@ namespace AdventOfCode.TwentyTwo
             }
             else
             {
-                // This is a value one
                 if (second.Value != -1)
                 {
+                    // Value vs Value
                     return first.Value.CompareTo(second.Value);
                 }
                 else
                 {
+                    // Value vs List
                     return Compare(new PacketValue(first.Value, true), second);
                 }
             }
@@ -318,14 +303,7 @@ namespace AdventOfCode.TwentyTwo
                     {
                         if (i == Values.Count())
                         {
-                            if (i == other.Values.Count())
-                            {
-                                return 0;
-                            }
-                            else
-                            {
-                                return -1;
-                            }
+                            return i.CompareTo(other.Values.Count());
                         }
 
                         if (i == other.Values.Count())
@@ -415,14 +393,7 @@ namespace AdventOfCode.TwentyTwo
                 case ListPacket l:
                     if (Packets.Count() == 0)
                     {
-                        if (l.Packets.Count == 0)
-                        {
-                            return 0;
-                        }
-                        else
-                        {
-                            return -1;
-                        }
+                        return 0.CompareTo(l.Packets.Count);
                     }
                     
                     for (int i = 0; i < Packets.Count(); i++)
@@ -438,22 +409,13 @@ namespace AdventOfCode.TwentyTwo
 
                         if (packetCompare != 0)
                         {
-                            // We only want to continue checking if the score wasn't 0. If it was 0, it means we're still even
                             return packetCompare;
                         }
 
                         if (i+1 == Packets.Count())
                         {
                             // If this is the last one, we need to go check the length of the other one
-                            if (i+1 == l.Packets.Count())
-                            {
-                                // They are the same length. And we've already checked these values and we don't have a winner, so return 0
-                                return 0;
-                            }
-                            else
-                            {
-                                return -1; // We have fewer elements, so we are smaller than other
-                            }
+                            return (i+1).CompareTo(l.Packets.Count);
                         }
                     }
                     return 0;
