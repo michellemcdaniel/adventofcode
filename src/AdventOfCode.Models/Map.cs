@@ -7,7 +7,7 @@ namespace AdventOfCode.Models
 {
     public class DictionaryMap<T>
     {
-        Dictionary<(int, int), T> Map { get; }
+        public Dictionary<(int, int), T> Map { get; }
 
         public DictionaryMap()
         {
