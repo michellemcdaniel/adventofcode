@@ -68,18 +68,21 @@ namespace AdventOfCode.TwentyTwo
             (long row, long col)? distressSignal = null;
             timer.Restart();
 
-            List<(int min, int max)> ranges = new();
+            int rangeMin = int.MaxValue;
+            int rangeMax = int.MinValue;
+
             foreach(var distance in manhattanDistances)
             {
                 int range = distance.Value - Math.Abs(searchRow-distance.Key.row);
                 if (range > 0)
                 {
-                    ranges.Add((distance.Key.col-range, distance.Key.col+range));
+                    rangeMin = Math.Min(rangeMin, distance.Key.col-range);
+                    rangeMax = Math.Max(rangeMax, distance.Key.col+range);
                 }
             }
 
             timer.Stop();
-            Console.WriteLine($"Part one, but Missy's way-ish: {ranges.Max(r => r.max)-ranges.Min(r => r.min)} (time: {timer.ElapsedMilliseconds}ms)");
+            Console.WriteLine($"Part one, but Missy's way-ish: {rangeMax-rangeMin} (time: {timer.ElapsedMilliseconds}ms)");
             timer.Restart();
 
             foreach (var distance in manhattanDistances)
