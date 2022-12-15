@@ -59,7 +59,7 @@ namespace AdventOfCode.Twenty
 
                 if ((meetTime+i)%val == 0)
                 {
-                    meetMultiplier*=val;
+                    meetMultiplier*=val; // least common multiple, since all values are prime
                     mapIndex++;
                 }
             }
