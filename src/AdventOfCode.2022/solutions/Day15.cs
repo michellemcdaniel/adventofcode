@@ -68,6 +68,20 @@ namespace AdventOfCode.TwentyTwo
             (long row, long col)? distressSignal = null;
             timer.Restart();
 
+            List<(int min, int max)> ranges = new();
+            foreach(var distance in manhattanDistances)
+            {
+                int range = distance.Value - Math.Abs(searchRow-distance.Key.row);
+                if (range > 0)
+                {
+                    ranges.Add((distance.Key.col-range, distance.Key.col+range));
+                }
+            }
+
+            timer.Stop();
+            Console.WriteLine($"Part one, but Missy's way-ish: {ranges.Select(r => r.max).Max()-ranges.Select(r => r.min).Min()} (time: {timer.ElapsedMilliseconds}ms)");
+            timer.Restart();
+
             foreach (var distance in manhattanDistances)
             { 
                 // We want to check the range of points just beyond the diamonds created by the manhattan distance
