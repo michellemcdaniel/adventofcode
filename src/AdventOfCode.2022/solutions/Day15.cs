@@ -79,7 +79,7 @@ namespace AdventOfCode.TwentyTwo
             }
 
             timer.Stop();
-            Console.WriteLine($"Part one, but Missy's way-ish: {ranges.Select(r => r.max).Max()-ranges.Select(r => r.min).Min()} (time: {timer.ElapsedMilliseconds}ms)");
+            Console.WriteLine($"Part one, but Missy's way-ish: {ranges.Max(r => r.max)-ranges.Min(r => r.min)} (time: {timer.ElapsedMilliseconds}ms)");
             timer.Restart();
 
             foreach (var distance in manhattanDistances)
